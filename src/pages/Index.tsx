@@ -4,7 +4,8 @@ import { Layout } from '@/components/Layout';
 import { NoteCard, Note } from '@/components/NoteCard';
 import { FlashcardView, Flashcard } from '@/components/FlashcardView';
 import { Button } from '@/components/ui/button';
-import { FileText, BookOpen, Upload, BarChart } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { FileText, BookOpen, Upload, BarChart, FolderKanban, Tag, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
@@ -42,17 +43,24 @@ const Index = () => {
   const stats = [
     { label: 'Total Notes', value: 24, icon: FileText },
     { label: 'Flashcards', value: 86, icon: BookOpen },
-    { label: 'Uploaded Files', value: 12, icon: Upload },
-    { label: 'Categories', value: 8, icon: BarChart }
+    { label: 'Categories', value: 8, icon: Tag },
+    { label: 'Collections', value: 4, icon: FolderKanban }
+  ];
+
+  const recentActivity = [
+    { type: 'note', action: 'created', title: 'Advanced AI Concepts in Education', time: '2 hours ago' },
+    { type: 'flashcard', action: 'created', title: 'What is spaced repetition?', time: '5 hours ago' },
+    { type: 'category', action: 'added', title: 'Education', time: '1 day ago' },
+    { type: 'file', action: 'uploaded', title: 'Research-Paper-AI.pdf', time: '2 days ago' },
   ];
 
   return (
     <Layout>
       <div className="space-y-8 max-w-6xl mx-auto">
         <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight">Welcome to ThoughtKeeper</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
-            Your AI-powered personal knowledge management system
+            Welcome to NOTEIT, your AI-powered knowledge management system
           </p>
         </div>
         
@@ -90,22 +98,39 @@ const Index = () => {
               {recentNotes.map((note) => (
                 <NoteCard 
                   key={note.id} 
-                  note={note} 
-                  onClick={() => navigate('/notes')}
+                  note={note}
                 />
               ))}
             </div>
             
-            <div className="glass-card rounded-lg p-6 mt-4 flex items-center justify-between animate-fade-in">
-              <div>
-                <h3 className="text-lg font-medium">Ready to add new knowledge?</h3>
-                <p className="text-sm text-muted-foreground">Upload documents or create new notes</p>
-              </div>
-              <Button onClick={() => navigate('/upload')}>
-                <Upload className="mr-2 h-4 w-4" />
-                Upload Files
-              </Button>
-            </div>
+            <Card className="mt-4 animate-fade-in">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentActivity.map((activity, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className="mt-0.5">
+                        {activity.type === 'note' && <FileText size={16} className="text-blue-500" />}
+                        {activity.type === 'flashcard' && <BookOpen size={16} className="text-green-500" />}
+                        {activity.type === 'category' && <Tag size={16} className="text-yellow-500" />}
+                        {activity.type === 'file' && <Upload size={16} className="text-purple-500" />}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm">
+                          You {activity.action} {activity.type === 'category' ? 'a new' : 'the'} {activity.type} <span className="font-medium">{activity.title}</span>
+                        </p>
+                        <div className="flex items-center text-xs text-muted-foreground mt-1">
+                          <Clock size={12} className="mr-1" />
+                          {activity.time}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
           
           <div className="space-y-4">
@@ -116,9 +141,36 @@ const Index = () => {
               </Button>
             </div>
             
-            <div className="glass-card p-6 rounded-lg">
+            <Card className="p-6 animate-scale-in">
               <FlashcardView flashcards={featuredFlashcards} />
-            </div>
+            </Card>
+            
+            <Card className="animate-scale-in">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Quick Actions</CardTitle>
+                <CardDescription>Common tasks you might want to do</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/notes')}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Create a new note
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/flashcards')}>
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Add flashcards
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/upload')}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload documents
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/categories')}>
+                    <Tag className="mr-2 h-4 w-4" />
+                    Manage categories
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LucideIcon, Home, FileText, BookOpen, Upload, Brain } from 'lucide-react';
+import { LucideIcon, Home, FileText, BookOpen, Upload, Brain, FolderKanban, Tag } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
 
 interface NavItemProps {
   to: string;
@@ -33,21 +34,25 @@ export const Sidebar = () => {
       <div className="mb-8 px-4 py-2">
         <div className="flex items-center gap-2">
           <Brain className="text-primary" size={24} />
-          <h1 className="text-xl font-semibold">ThoughtKeeper</h1>
+          <h1 className="text-xl font-semibold">NOTEIT</h1>
         </div>
         <p className="text-xs text-muted-foreground mt-1">Your AI-powered knowledge system</p>
       </div>
       
       <nav className="space-y-1 flex-1">
-        <NavItem to="/" icon={Home} label="Dashboard" />
+        <NavItem to="/dashboard" icon={Home} label="Dashboard" />
         <NavItem to="/notes" icon={FileText} label="Notes" />
         <NavItem to="/flashcards" icon={BookOpen} label="Flashcards" />
+        <NavItem to="/categories" icon={Tag} label="Categories" />
+        <NavItem to="/collections" icon={FolderKanban} label="Collections" />
         <NavItem to="/upload" icon={Upload} label="Upload" />
       </nav>
       
-      <div className="glass-card mt-auto p-4 rounded-lg">
-        <h3 className="text-sm font-medium">ThoughtKeeper AI</h3>
-        <p className="text-xs text-muted-foreground mt-1">AI-powered organization and learning</p>
+      <div className="mt-auto flex items-center justify-between p-4 border-t border-border">
+        <div className="text-sm text-muted-foreground">
+          Theme
+        </div>
+        <ThemeToggle />
       </div>
     </aside>
   );

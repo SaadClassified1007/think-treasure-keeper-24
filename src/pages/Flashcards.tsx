@@ -4,97 +4,122 @@ import { Layout } from '@/components/Layout';
 import { FlashcardView, Flashcard } from '@/components/FlashcardView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, Search, Plus, BookMarked } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { categorizeText } from '@/utils/ai';
+import { Plus, Search, Filter, BookOpen } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Flashcards = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
-  // Mock data for flashcards
-  const [flashcards, setFlashcards] = useState<Flashcard[]>([
-    {
-      id: 'f1',
-      question: 'What are the key benefits of AI-powered knowledge management?',
-      answer: 'Automated organization, improved retrieval, content summarization, and enhanced connections between related information.',
-      category: 'Technology'
-    },
-    {
-      id: 'f2',
-      question: 'What is spaced repetition?',
-      answer: 'A learning technique that involves reviewing information at increasing intervals to leverage the psychological spacing effect for better long-term memory retention.',
-      category: 'Learning'
-    },
-    {
-      id: 'f3',
-      question: 'How do adaptive learning systems work?',
-      answer: 'They use AI to analyze student performance data and learning patterns to customize educational content based on individual needs, addressing specific strengths and weaknesses.',
-      category: 'Education'
-    }
-  ]);
+  const categorizedFlashcards = {
+    'Technology': [
+      {
+        id: 'tech1',
+        question: 'What are the key benefits of AI-powered knowledge management?',
+        answer: 'Automated organization, improved retrieval, content summarization, and enhanced connections between related information.',
+        category: 'Technology'
+      },
+      {
+        id: 'tech2',
+        question: 'What is natural language processing?',
+        answer: 'A branch of AI that enables computers to understand, interpret, and generate human language in a valuable way.',
+        category: 'Technology'
+      },
+      {
+        id: 'tech3',
+        question: 'What are knowledge graphs?',
+        answer: 'A knowledge graph is a network of entities, their semantic types, properties, and relationships between entities.',
+        category: 'Technology'
+      }
+    ],
+    'Science': [
+      {
+        id: 'sci1',
+        question: 'What is spaced repetition?',
+        answer: 'A learning technique that involves reviewing information at increasing intervals to improve long-term retention.',
+        category: 'Science'
+      },
+      {
+        id: 'sci2',
+        question: 'Who described the forgetting curve?',
+        answer: 'Hermann Ebbinghaus, who demonstrated how information is lost over time when there is no attempt to retain it.',
+        category: 'Science'
+      }
+    ],
+    'Productivity': [
+      {
+        id: 'prod1',
+        question: 'What is the Cornell note-taking method?',
+        answer: 'A system for taking and organizing notes by dividing the page into sections for notes, cues, and summary.',
+        category: 'Productivity'
+      },
+      {
+        id: 'prod2',
+        question: 'What is active recall?',
+        answer: 'A learning principle that involves actively stimulating memory during the learning process, rather than passively reviewing material.',
+        category: 'Productivity'
+      }
+    ]
+  };
+  
+  const categories = Object.keys(categorizedFlashcards);
   
   const [newFlashcard, setNewFlashcard] = useState({
     question: '',
     answer: '',
-    category: ''
+    category: categories[0]
   });
-  const [isNewFlashcardDialogOpen, setIsNewFlashcardDialogOpen] = useState(false);
   
-  const categories = Array.from(new Set(flashcards.map(card => card.category)));
-  
-  const filteredFlashcards = flashcards.filter(card => {
-    const matchesSearch = searchQuery === '' || 
-      card.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      card.answer.toLowerCase().includes(searchQuery.toLowerCase());
+  // Filter flashcards by search query and category
+  const filteredFlashcards = Object.entries(categorizedFlashcards)
+    .filter(([category]) => !selectedCategory || category === selectedCategory)
+    .map(([category, cards]) => ({
+      category,
+      cards: cards.filter(card => 
+        searchQuery === '' || 
+        card.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        card.answer.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    }))
+    .filter(group => group.cards.length > 0);
     
-    const matchesCategory = categoryFilter === null || card.category === categoryFilter;
-    const matchesTab = activeTab === 'all' || (activeTab === 'mastered' ? true : true); // Placeholder for mastered logic
-    
-    return matchesSearch && matchesCategory && matchesTab;
-  });
+  const allFlashcards = Object.values(categorizedFlashcards).flat();
   
   const handleCreateFlashcard = () => {
-    const category = newFlashcard.category || categorizeText(newFlashcard.question + ' ' + newFlashcard.answer);
-    
-    const createdFlashcard: Flashcard = {
-      id: Date.now().toString(),
-      question: newFlashcard.question,
-      answer: newFlashcard.answer,
-      category
-    };
-    
-    setFlashcards(prev => [createdFlashcard, ...prev]);
-    setNewFlashcard({ question: '', answer: '', category: '' });
-    setIsNewFlashcardDialogOpen(false);
+    // In a real app, this would add to the state
+    console.log('Created flashcard:', newFlashcard);
+    setNewFlashcard({
+      question: '',
+      answer: '',
+      category: categories[0]
+    });
   };
-
+  
   return (
     <Layout>
       <div className="space-y-6 max-w-6xl mx-auto">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-semibold tracking-tight">Flashcards</h1>
-            <p className="text-muted-foreground">Review and test your knowledge</p>
+            <p className="text-muted-foreground">Review and reinforce your knowledge</p>
           </div>
           
-          <Dialog open={isNewFlashcardDialogOpen} onOpenChange={setIsNewFlashcardDialogOpen}>
+          <Dialog>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
                 Create Flashcard
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
                 <DialogTitle>Create New Flashcard</DialogTitle>
                 <DialogDescription>
-                  Add a new flashcard to your collection. AI will help categorize it.
+                  Add a new flashcard to your study collection.
                 </DialogDescription>
               </DialogHeader>
               
@@ -107,8 +132,8 @@ const Flashcards = () => {
                     id="question"
                     value={newFlashcard.question}
                     onChange={(e) => setNewFlashcard({ ...newFlashcard, question: e.target.value })}
-                    placeholder="Enter flashcard question"
-                    rows={3}
+                    placeholder="Enter question"
+                    rows={2}
                   />
                 </div>
                 
@@ -120,43 +145,38 @@ const Flashcards = () => {
                     id="answer"
                     value={newFlashcard.answer}
                     onChange={(e) => setNewFlashcard({ ...newFlashcard, answer: e.target.value })}
-                    placeholder="Enter flashcard answer"
+                    placeholder="Enter answer"
                     rows={3}
                   />
                 </div>
                 
                 <div className="space-y-2">
                   <label htmlFor="category" className="text-sm font-medium">
-                    Category (optional)
+                    Category
                   </label>
                   <Select 
                     value={newFlashcard.category} 
                     onValueChange={(value) => setNewFlashcard({ ...newFlashcard, category: value })}
                   >
-                    <SelectTrigger id="category">
-                      <SelectValue placeholder="Select or let AI choose" />
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Let AI choose</SelectItem>
                       {categories.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
                         </SelectItem>
                       ))}
-                      <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsNewFlashcardDialogOpen(false)}>
+                <Button variant="outline">
                   Cancel
                 </Button>
-                <Button 
-                  onClick={handleCreateFlashcard} 
-                  disabled={!newFlashcard.question || !newFlashcard.answer}
-                >
+                <Button onClick={handleCreateFlashcard} disabled={!newFlashcard.question || !newFlashcard.answer}>
                   Create Flashcard
                 </Button>
               </div>
@@ -174,7 +194,7 @@ const Flashcards = () => {
               className="pl-10"
             />
           </div>
-          <Select value={categoryFilter || ''} onValueChange={(value) => setCategoryFilter(value || null)}>
+          <Select value={selectedCategory || ''} onValueChange={(value) => setSelectedCategory(value || null)}>
             <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
@@ -189,61 +209,65 @@ const Flashcards = () => {
           </Select>
         </div>
         
-        <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs defaultValue="categories" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="categories">By Category</TabsTrigger>
             <TabsTrigger value="all">All Flashcards</TabsTrigger>
-            <TabsTrigger value="mastered">Mastered</TabsTrigger>
           </TabsList>
-          <TabsContent value="all" className="mt-6">
+          
+          <TabsContent value="categories" className="space-y-6">
             {filteredFlashcards.length === 0 ? (
               <div className="text-center py-12 glass-card rounded-lg animate-fade-in">
                 <BookOpen className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 className="mt-4 text-lg font-medium">No flashcards found</h3>
                 <p className="text-muted-foreground">
-                  {searchQuery || categoryFilter
+                  {searchQuery || selectedCategory
                     ? "Try adjusting your filters"
                     : "Create your first flashcard to get started"}
                 </p>
-                <Button
-                  className="mt-4"
-                  onClick={() => setIsNewFlashcardDialogOpen(true)}
-                >
+                <Button className="mt-4">
                   <Plus className="mr-2 h-4 w-4" />
                   Create Flashcard
                 </Button>
               </div>
             ) : (
-              <FlashcardView flashcards={filteredFlashcards} />
+              <>
+                {filteredFlashcards.map(({ category, cards }) => (
+                  <Card key={category} className="overflow-hidden animate-scale-in">
+                    <CardHeader>
+                      <CardTitle>{category}</CardTitle>
+                      <CardDescription>{cards.length} flashcards</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <FlashcardView flashcards={cards} />
+                    </CardContent>
+                  </Card>
+                ))}
+              </>
             )}
           </TabsContent>
-          <TabsContent value="mastered" className="mt-6">
-            <div className="text-center py-12 glass-card rounded-lg animate-fade-in">
-              <BookMarked className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-medium">Mastery Tracking</h3>
-              <p className="text-muted-foreground">
-                Mastered flashcards will appear here as you learn
-              </p>
-            </div>
-          </TabsContent>
-        </Tabs>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-          {filteredFlashcards.slice(0, 3).map((card) => (
-            <Card key={card.id} className="glass-card">
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
-                    {card.category}
-                  </span>
-                </div>
-                <CardTitle className="text-base line-clamp-2 mt-2">{card.question}</CardTitle>
+          
+          <TabsContent value="all">
+            <Card>
+              <CardHeader>
+                <CardTitle>All Flashcards</CardTitle>
+                <CardDescription>Review all your flashcards at once</CardDescription>
               </CardHeader>
-              <CardContent className="pb-2">
-                <p className="text-sm text-muted-foreground line-clamp-2">{card.answer}</p>
+              <CardContent>
+                {searchQuery || selectedCategory ? (
+                  <FlashcardView flashcards={allFlashcards.filter(card => 
+                    (!selectedCategory || card.category === selectedCategory) &&
+                    (searchQuery === '' || 
+                    card.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                    card.answer.toLowerCase().includes(searchQuery.toLowerCase()))
+                  )} />
+                ) : (
+                  <FlashcardView flashcards={allFlashcards} />
+                )}
               </CardContent>
             </Card>
-          ))}
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );
