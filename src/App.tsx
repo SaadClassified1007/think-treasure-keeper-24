@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { initializeTheme } from "@/lib/utils";
 import Auth from "./pages/Auth";
+import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Notes from "./pages/Notes";
 import Flashcards from "./pages/Flashcards";
@@ -31,6 +32,7 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Auth />} />
+            <Route path="/landing" element={<Landing />} />
             <Route path="/dashboard" element={<Index />} />
             <Route path="/notes" element={<Notes />} />
             <Route path="/flashcards" element={<Flashcards />} />
