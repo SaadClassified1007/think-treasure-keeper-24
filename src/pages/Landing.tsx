@@ -1,223 +1,401 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { FileText, Brain, ArrowRight, Check, Star } from 'lucide-react';
+import { 
+  ArrowRight, 
+  Check, 
+  Star, 
+  Brain, 
+  FileText, 
+  Upload, 
+  Grid3X3, 
+  LineChart, 
+  Layers, 
+  ChevronRight
+} from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
 // Register GSAP plugins
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const Landing = () => {
   const navigate = useNavigate();
-  const heroRef = useRef(null);
-  const ctaRef = useRef(null);
-  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = useRef<(HTMLElement | null)[]>([]);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // GSAP animations
+  // Cursor effect
   useEffect(() => {
-    // Hero section animation
-    const heroTl = gsap.timeline();
-    heroTl.from(heroRef.current, { 
-      opacity: 0, 
-      y: 30, 
-      duration: 0.8,
-      ease: "power3.out" 
-    });
-    
-    // CTA buttons animation
-    heroTl.from(ctaRef.current?.children, { 
-      opacity: 0, 
-      y: 20, 
-      stagger: 0.2, 
-      duration: 0.5,
-      ease: "back.out(1.7)" 
-    }, "-=0.4");
-    
-    // Sections animations
-    sectionRefs.current.forEach((section, index) => {
-      gsap.from(section, { 
-        scrollTrigger: {
-          trigger: section,
-          start: "top 80%",
-          toggleActions: "play none none none"
-        },
-        opacity: 0, 
-        y: 50, 
-        duration: 0.8,
-        delay: index * 0.1,
-        ease: "power2.out" 
-      });
-    });
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
     
     return () => {
-      // Clean up all ScrollTriggers to prevent memory leaks
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
 
-  // Function to add refs to an array
-  const addToRefs = (el: HTMLDivElement | null) => {
+  useEffect(() => {
+    if (cursorRef.current) {
+      gsap.to(cursorRef.current, {
+        duration: 0.5,
+        left: mousePosition.x,
+        top: mousePosition.y,
+        ease: "power2.out",
+      });
+    }
+  }, [mousePosition]);
+
+  // GSAP animations
+  useEffect(() => {
+    // Set loaded state to trigger initial animations
+    setIsLoaded(true);
+    
+    // Hero section animation
+    const heroTl = gsap.timeline({ delay: 0.5 });
+    if (heroRef.current) {
+      heroTl.from(heroRef.current.querySelectorAll('.animate-hero'), { 
+        y: 50,
+        opacity: 0, 
+        duration: 0.8,
+        stagger: 0.15,
+        ease: "power3.out" 
+      });
+    }
+    
+    if (ctaRef.current) {
+      heroTl.from(ctaRef.current.children, { 
+        y: 30,
+        opacity: 0, 
+        scale: 0.9,
+        duration: 0.6,
+        stagger: 0.2, 
+        ease: "back.out(1.7)" 
+      }, "-=0.4");
+    }
+    
+    // Setup section animations
+    sectionRefs.current.forEach((section) => {
+      if (section) {
+        // Animate section headline
+        gsap.from(section.querySelector('.section-title'), { 
+          scrollTrigger: {
+            trigger: section,
+            start: "top 80%",
+            toggleActions: "play none none none"
+          },
+          y: 30,
+          opacity: 0, 
+          duration: 0.8,
+          ease: "power2.out"
+        });
+        
+        // Animate section items
+        gsap.from(section.querySelectorAll('.animate-item'), { 
+          scrollTrigger: {
+            trigger: section,
+            start: "top 75%",
+            toggleActions: "play none none none"
+          },
+          y: 40,
+          opacity: 0, 
+          duration: 0.5,
+          stagger: 0.1,
+          ease: "power3.out"
+        });
+      }
+    });
+    
+    // Cleanup function to avoid memory leaks
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
+  }, []);
+  
+  // Scroll to section function for navigation
+  const scrollToSection = (sectionId: string) => {
+    gsap.to(window, {
+      duration: 1,
+      scrollTo: { y: `#${sectionId}`, offsetY: 80 },
+      ease: "power3.inOut"
+    });
+  };
+
+  // Add refs to an array function
+  const addToRefs = (el: HTMLElement | null) => {
     if (el && !sectionRefs.current.includes(el)) {
       sectionRefs.current.push(el);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
+      {/* Cursor effect */}
+      <div ref={cursorRef} className="cursor-glow fixed pointer-events-none z-0" />
+      
+      {/* Background gradient elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div className="absolute top-[10%] left-[5%] w-[30rem] h-[30rem] bg-blue-500/20 rounded-full filter blur-[6rem] opacity-30 animate-pulse" />
+        <div className="absolute top-[40%] right-[5%] w-[40rem] h-[25rem] bg-purple-500/20 rounded-full filter blur-[7rem] opacity-30 animate-pulse" style={{ animationDuration: '15s' }} />
+        <div className="absolute bottom-[10%] left-[20%] w-[35rem] h-[25rem] bg-teal-500/20 rounded-full filter blur-[8rem] opacity-20 animate-pulse" style={{ animationDuration: '20s' }} />
+      </div>
+
       {/* Navbar */}
-      <header className="border-b border-border py-4 px-6 flex items-center justify-between bg-background/95 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border/40 py-4 px-6 flex items-center justify-between bg-background/50 backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center">
-          <h1 className="text-2xl font-bold tracking-tight">NOTEIT</h1>
+          <h1 className="text-2xl font-bold tracking-tight font-space">NOTEIT</h1>
+        </div>
+        <div className="hidden md:flex items-center gap-8 font-jakarta">
+          <button onClick={() => scrollToSection('features')} className="text-foreground/80 hover:text-primary transition-colors">Features</button>
+          <button onClick={() => scrollToSection('howItWorks')} className="text-foreground/80 hover:text-primary transition-colors">How It Works</button>
+          <button onClick={() => scrollToSection('solutions')} className="text-foreground/80 hover:text-primary transition-colors">Solutions</button>
         </div>
         <div className="flex items-center gap-3">
           <ThemeToggle />
           <Button 
             variant="outline" 
             onClick={() => navigate('/signin')}
+            className="font-jakarta"
           >
             Sign In
           </Button>
           <Button 
             onClick={() => navigate('/signup')}
+            className="font-jakarta relative overflow-hidden group"
           >
-            Get Started
+            <span className="relative z-10">Get Started</span>
+            <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
           </Button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="flex-1 flex flex-col items-center justify-center text-center p-6 md:p-10 max-w-5xl mx-auto mt-10 mb-20">
-        <div ref={heroRef}>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 font-sans">
-            AI-Powered Knowledge Management
+      <section ref={heroRef} className="flex-1 flex flex-col items-center justify-center text-center p-6 md:p-10 max-w-6xl mx-auto mt-10 mb-20 relative">
+        <div className="relative z-10 spotlight">
+          <h1 className="animate-hero text-4xl md:text-6xl xl:text-7xl font-bold mb-6 font-space leading-tight bg-gradient-to-br from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
+            AI-Powered Notes, Flashcards <br className="hidden md:block" /> & Knowledge That Grows With You
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl font-light">
-            Organize your thoughts, notes, and knowledge with the power of artificial intelligence
+          <p className="animate-hero text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl font-jakarta">
+            NOTEIT is your personal AI for mastering what matters.
           </p>
           <div ref={ctaRef} className="flex flex-col sm:flex-row justify-center gap-4">
             <Button 
               size="lg" 
-              className="text-lg px-8 py-6"
-              onClick={() => navigate('/signin')}
+              className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-none shadow-lg hover:shadow-blue-700/20 transition-all duration-300"
+              onClick={() => navigate('/signup')}
             >
               Get Started For Free
             </Button>
             <Button
-              variant="outline"
+              variant="outline" 
               size="lg"
-              className="text-lg"
-              onClick={() => navigate('/signin')}
+              className="text-lg group"
+              onClick={() => scrollToSection('howItWorks')}
             >
-              Learn More
+              See How It Works
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
+          </div>
+          
+          <div className="mt-16 animate-hero glass-morphism p-5 rounded-xl flex justify-center items-center">
+            <div className="w-full max-w-4xl aspect-[16/9] rounded-lg bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-indigo-500/30 flex items-center justify-center">
+              <div className="p-6 glass-morphism rounded-xl flex items-center gap-4">
+                <Brain className="h-10 w-10 text-primary" />
+                <div className="text-left">
+                  <h3 className="text-xl font-semibold">AI-Powered Knowledge Management</h3>
+                  <p className="text-muted-foreground">Transform your notes into actionable knowledge</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Problem Statement Section */}
-      <section ref={addToRefs} className="py-16 px-6 md:px-10 bg-secondary/30">
-        <div className="max-w-5xl mx-auto">
+      {/* What We Solve Section */}
+      <section ref={(el) => addToRefs(el)} id="solutions" className="py-24 px-6 md:px-10 glass-morphism my-10">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">The Problem We Solve</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Information overload and knowledge fragmentation make it difficult to organize and retrieve what matters most.
+            <h2 className="section-title text-3xl md:text-5xl font-bold mb-4">The Problems We Solve</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-jakarta">
+              NOTEIT transforms how you capture, organize, and retain knowledge.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <ProblemCard 
-              title="Information Overload"
-              description="Too much content from multiple sources makes it hard to focus on what's important."
-            />
-            <ProblemCard 
-              title="Knowledge Fragmentation"
-              description="Notes scattered across different apps and platforms, making retrieval difficult."
-            />
-            <ProblemCard 
-              title="Manual Organization"
-              description="Time wasted on manual categorizing and searching through notes."
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <div className="glass-card p-8 rounded-2xl animate-item hover:shadow-xl hover:shadow-primary/5 transition duration-300 order-2 md:order-1">
+              <div className="space-y-6">
+                <div className="flex items-start gap-4 animate-item">
+                  <div className="bg-primary/10 p-2 rounded-full">
+                    <Check size={20} className="text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold mb-2">Information Overload</h3>
+                    <p className="text-muted-foreground">NOTEIT distills your content and files into concise, actionable notes</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4 animate-item">
+                  <div className="bg-primary/10 p-2 rounded-full">
+                    <Check size={20} className="text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold mb-2">Knowledge Fragmentation</h3>
+                    <p className="text-muted-foreground">Centralize all your notes, references and knowledge in one seamless system</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4 animate-item">
+                  <div className="bg-primary/10 p-2 rounded-full">
+                    <Check size={20} className="text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold mb-2">Passive Learning</h3>
+                    <p className="text-muted-foreground">Transform passive reading into active knowledge with flashcards and spaced repetition</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4 animate-item">
+                  <div className="bg-primary/10 p-2 rounded-full">
+                    <Check size={20} className="text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold mb-2">Manual Organization</h3>
+                    <p className="text-muted-foreground">NOTEIT's AI automatically categorizes and connects your knowledge</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="relative h-full flex items-center justify-center order-1 md:order-2">
+              <div className="glass-card p-6 rounded-2xl w-full max-w-lg animate-item">
+                <div className="bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-indigo-500/20 p-8 rounded-xl relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxwYXRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMTQ3LCAyMDQsIDI1NSwgMC4xKSIgc3Ryb2tlLXdpZHRoPSIxIj48L3BhdGg+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIj48L3JlY3Q+PC9zdmc+')] opacity-20"></div>
+                  <div className="relative z-10 flex flex-col items-center">
+                    <Brain className="h-24 w-24 mb-6 text-primary" />
+                    <h3 className="text-2xl md:text-3xl font-bold font-space text-center mb-4">AI Understands Your Content</h3>
+                    <p className="text-center text-muted-foreground">
+                      Our artificial intelligence analyzes your notes and documents, extracting key concepts and relationships to create a personalized knowledge graph.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-blue-500/20 rounded-full filter blur-[5rem] animate-pulse"></div>
+              <div className="absolute -top-8 -left-8 w-60 h-60 bg-purple-500/20 rounded-full filter blur-[5rem] animate-pulse" style={{ animationDuration: '15s' }}></div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section ref={addToRefs} className="py-16 px-6 md:px-10">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Features Section - Bento Grid */}
+      <section ref={(el) => addToRefs(el)} id="features" className="py-24 px-6 md:px-10 relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="section-title text-3xl md:text-5xl font-bold mb-4 font-space">Key Features</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-jakarta">
+              Everything you need to capture, organize, and master knowledge
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             <FeatureCard 
               icon={Brain}
-              title="AI-Powered Organization"
-              description="Automatically categorize and organize your notes with advanced AI algorithms"
+              title="AI-Generated Notes"
+              description="Let our AI transform documents and uploads into concise, organized notes"
+              index={0}
             />
             <FeatureCard 
               icon={FileText}
-              title="Intelligent Note-Taking"
-              description="Take notes efficiently with AI-assisted formatting and organization"
+              title="Smart Flashcards"
+              description="Convert your notes into flashcards with spaced repetition for better retention"
+              index={1}
             />
             <FeatureCard 
-              icon={FileText}
-              title="Upload Documents"
-              description="Want to upload documents? Just drag and drop them into NOTEIT"
+              icon={Grid3X3}
+              title="Easy Categorization"
+              description="Automatically organize your notes with AI-powered categorization"
+              index={2}
             />
             <FeatureCard 
-              icon={FileText}
-              title="AI powered summarization"
-              description="Summarize your notes and documents with AI to get the key points quickly"
+              icon={Layers}
+              title="Bento Dashboard"
+              description="View your knowledge system through an intuitive bento grid interface"
+              index={3}
             />
             <FeatureCard 
-            icon={FileText}
-            title="Markdown Editing"
-            description="Write and style your notes seamlessly using a powerful, built-in markdown editor"
-          />
-          <FeatureCard 
-            icon={FileText}
-            title="Secure & Private"
-            description="Your data is protected with JWT authentication and secure storage practices"
-          />
-
+              icon={LineChart}
+              title="Progress Tracking"
+              description="Track your learning progress and knowledge growth over time"
+              index={4}
+            />
+            <FeatureCard 
+              icon={Upload}
+              title="Document Upload"
+              description="Extract knowledge from PDFs and documents with AI processing"
+              index={5}
+            />
           </div>
         </div>
       </section>
 
       {/* How It Works Section */}
-      <section ref={addToRefs} className="py-16 px-6 md:px-10 bg-secondary/30">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-16">How It Works</h2>
+      <section ref={(el) => addToRefs(el)} id="howItWorks" className="py-24 px-6 md:px-10 glass-morphism">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="section-title text-3xl md:text-5xl font-bold mb-4 font-space">How NOTEIT Works</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-jakarta">
+              Transform how you capture and retain knowledge in just four simple steps
+            </p>
+          </div>
           
-          <div className="space-y-10 md:space-y-0 md:grid md:grid-cols-4 md:gap-12">
-            <WorkflowStep 
-              number={1}
-              title="Create Notes"
-              description="Write or import your notes using our Markdown editor"
-            />
-            <WorkflowStep 
-              number={2}
-              title="AI Processing"
-              description="Our AI analyzes and categorizes your content"
-            />
-            <WorkflowStep 
-              number={3}
-              title="Knowledge Organization"
-              description="Your notes are automatically organized by topics"
-            />
-            <WorkflowStep 
-              number={4}
-              title="Search & Retrieve"
-              description="Easily find and access your organized knowledge"
-            />
+          <div className="relative">
+            {/* Connection line */}
+            <div className="hidden lg:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-blue-500/30 via-purple-500/40 to-indigo-500/30 transform -translate-y-1/2"></div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+              <WorkflowStep 
+                number={1}
+                title="Add Notes or Upload"
+                description="Write notes or upload documents to your knowledge base"
+              />
+              <WorkflowStep 
+                number={2}
+                title="AI Processing"
+                description="Our AI analyzes and organizes your content"
+              />
+              <WorkflowStep 
+                number={3}
+                title="Create Flashcards"
+                description="Transform your notes into effective learning tools"
+              />
+              <WorkflowStep 
+                number={4}
+                title="Master Knowledge"
+                description="Track progress and reinforce your learning"
+              />
+            </div>
           </div>
         </div>
       </section>
-
+      
       {/* Testimonials Section */}
-      <section ref={addToRefs} className="py-16 px-6 md:px-10">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">What Our Users Say</h2>
+      <section ref={(el) => addToRefs(el)} className="py-24 px-6 md:px-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="section-title text-3xl md:text-5xl font-bold mb-4 font-space">What Our Users Say</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-jakarta">
+              Join thousands of students and professionals who've transformed their learning
+            </p>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <TestimonialCard 
@@ -243,64 +421,97 @@ const Landing = () => {
       </section>
 
       {/* CTA Section */}
-      <section ref={addToRefs} className="py-20 px-6 md:px-10 bg-primary/10 text-center">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold mb-6">Ready to Transform Your Knowledge Management?</h2>
-          <p className="text-lg mb-8 text-muted-foreground">
-            Join thousands of students, researchers, and professionals who have enhanced their learning with NOTEIT.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button 
-              size="lg"
-              onClick={() => navigate('/signup')}
-              className="text-lg"
-            >
-              Get Started Free
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              onClick={() => navigate('/signin')}
-              className="text-lg"
-            >
-              Sign In
-            </Button>
+      <section ref={(el) => addToRefs(el)} className="py-20 px-6 md:px-10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-indigo-900/40"></div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMDAwMDAwMWEiPjwvcmVjdD4KPHBhdGggZD0iTTAgNUw1IDBaTTYgNEw0IDZaTS0xIDFMMSAtMVoiIHN0cm9rZT0iI2ZmZmZmZjBhIiBzdHJva2Utd2lkdGg9IjEiPjwvcGF0aD4KPC9zdmc+')] opacity-20"></div>
+        
+        <div className="max-w-5xl mx-auto relative z-10 glass-panel p-12 rounded-2xl border border-white/10 shadow-2xl">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 font-space">Ready to Learn Smarter?</h2>
+            <p className="text-lg md:text-xl font-jakarta text-muted-foreground mb-8">
+              Join thousands of students, researchers, and professionals who have enhanced their learning with NOTEIT.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button 
+                size="lg"
+                onClick={() => navigate('/signup')}
+                className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-none shadow-lg hover:shadow-blue-700/20 transition-all duration-300"
+              >
+                Start Using NOTEIT Free
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+            <p className="mt-4 text-sm text-muted-foreground">No credit card needed · Start in 60 seconds</p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="flex items-center gap-3 justify-center">
+              <div className="bg-primary/10 p-2 rounded-full">
+                <Check size={18} className="text-primary" />
+              </div>
+              <p className="text-sm">Free starter account</p>
+            </div>
+            <div className="flex items-center gap-3 justify-center">
+              <div className="bg-primary/10 p-2 rounded-full">
+                <Check size={18} className="text-primary" />
+              </div>
+              <p className="text-sm">AI-powered organization</p>
+            </div>
+            <div className="flex items-center gap-3 justify-center">
+              <div className="bg-primary/10 p-2 rounded-full">
+                <Check size={18} className="text-primary" />
+              </div>
+              <p className="text-sm">Smart flashcard system</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-10 px-6 border-t border-border">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+      <footer className="py-12 px-6 border-t border-border/40">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
             <div>
-              <h3 className="text-lg font-semibold mb-4">NOTEIT</h3>
+              <h3 className="text-2xl font-semibold mb-4 font-space">NOTEIT</h3>
               <p className="text-muted-foreground">
                 AI-powered note-taking and knowledge management for the modern learner.
               </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-4">Features</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>Smart Notes</li>
-                <li>AI Categorization</li>
-                <li>Document Processing</li>
-                <li>Search & Retrieval</li>
+              <h3 className="text-lg font-semibold mb-4 font-space">Features</h3>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li className="hover:text-foreground transition-colors">Smart Notes</li>
+                <li className="hover:text-foreground transition-colors">AI Categorization</li>
+                <li className="hover:text-foreground transition-colors">Flashcards</li>
+                <li className="hover:text-foreground transition-colors">Document Processing</li>
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>About Us</li>
-                <li>Blog</li>
-                <li>Privacy Policy</li>
-                <li>Terms of Service</li>
+              <h3 className="text-lg font-semibold mb-4 font-space">Resources</h3>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li className="hover:text-foreground transition-colors">Help Center</li>
+                <li className="hover:text-foreground transition-colors">Documentation</li>
+                <li className="hover:text-foreground transition-colors">API</li>
+                <li className="hover:text-foreground transition-colors">Community</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4 font-space">Company</h3>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li className="hover:text-foreground transition-colors">About Us</li>
+                <li className="hover:text-foreground transition-colors">Blog</li>
+                <li className="hover:text-foreground transition-colors">Privacy Policy</li>
+                <li className="hover:text-foreground transition-colors">Terms of Service</li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-border pt-6 text-center text-sm text-muted-foreground">
-            <p>© 2025 NOTEIT. All rights reserved.</p>
+          <div className="border-t border-border/40 pt-6 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
+            <p>© {new Date().getFullYear()} NOTEIT. All rights reserved.</p>
+            <div className="flex gap-6 mt-4 md:mt-0">
+              <span className="cursor-pointer hover:text-foreground transition-colors">Twitter</span>
+              <span className="cursor-pointer hover:text-foreground transition-colors">GitHub</span>
+              <span className="cursor-pointer hover:text-foreground transition-colors">Discord</span>
+            </div>
           </div>
         </div>
       </footer>
@@ -308,41 +519,38 @@ const Landing = () => {
   );
 };
 
+// Feature Card Component with staggered animation
 const FeatureCard = ({ 
   icon: Icon, 
   title, 
-  description 
+  description,
+  index
 }: { 
   icon: React.ElementType; 
   title: string; 
-  description: string 
+  description: string;
+  index: number;
 }) => {
   return (
-    <div className="bg-card p-6 rounded-lg border border-border hover:shadow-md transition-all duration-300">
-      <div className="p-3 rounded-full bg-primary/10 w-fit mb-4">
-        <Icon size={24} className="text-primary" />
+    <div className="animate-item group glass-card rounded-xl p-6 border border-border/40 hover:-translate-y-1 hover:border-primary/20 hover:shadow-lg transition-all duration-500"
+         style={{ transitionDelay: `${index * 50}ms` }}>
+      <div className="flex flex-col h-full">
+        <div className="mb-4 p-3 rounded-full bg-primary/10 w-fit group-hover:bg-primary/20 transition-colors duration-300">
+          <Icon size={24} className="text-primary" />
+        </div>
+        <h3 className="text-xl font-semibold mb-2 font-space">{title}</h3>
+        <p className="text-muted-foreground font-jakarta">{description}</p>
+        
+        <div className="mt-auto pt-4 flex items-center text-sm text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+          <span>Learn more</span>
+          <ChevronRight className="ml-1 h-4 w-4" />
+        </div>
       </div>
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-muted-foreground">{description}</p>
     </div>
   );
 };
 
-const ProblemCard = ({ 
-  title, 
-  description 
-}: { 
-  title: string; 
-  description: string 
-}) => {
-  return (
-    <div className="bg-card p-6 rounded-lg border border-border hover:shadow-md transition-all duration-300">
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
-      <p className="text-muted-foreground">{description}</p>
-    </div>
-  );
-};
-
+// Workflow Step Component
 const WorkflowStep = ({ 
   number, 
   title, 
@@ -353,23 +561,17 @@ const WorkflowStep = ({
   description: string 
 }) => {
   return (
-    <div className="flex flex-col items-center text-center">
-      <div className="bg-primary text-primary-foreground w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mb-4">
+    <div className="animate-item flex flex-col items-center text-center relative">
+      <div className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold mb-6 shadow-lg shadow-blue-500/20 z-10">
         {number}
       </div>
-      <div className="hidden md:block w-full h-1 bg-primary/30 relative">
-        {number < 4 && (
-          <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2">
-            <ArrowRight className="text-primary" />
-          </div>
-        )}
-      </div>
-      <h3 className="text-xl font-semibold mt-4 mb-2">{title}</h3>
-      <p className="text-muted-foreground">{description}</p>
+      <h3 className="text-xl font-semibold mt-2 mb-2 font-space">{title}</h3>
+      <p className="text-muted-foreground font-jakarta">{description}</p>
     </div>
   );
 };
 
+// Testimonial Card Component
 const TestimonialCard = ({ 
   quote, 
   name, 
@@ -382,7 +584,7 @@ const TestimonialCard = ({
   rating: number;
 }) => {
   return (
-    <div className="bg-card p-6 rounded-lg border border-border hover:shadow-md transition-all duration-300">
+    <div className="animate-item glass-card p-6 rounded-xl border border-border/40 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
       <div className="flex mb-4">
         {[...Array(rating)].map((_, i) => (
           <Star key={i} size={16} className="text-primary fill-primary" />
@@ -391,7 +593,7 @@ const TestimonialCard = ({
           <Star key={i + rating} size={16} className="text-muted" />
         ))}
       </div>
-      <p className="italic mb-4">"{quote}"</p>
+      <p className="italic mb-6 font-jakarta">"{quote}"</p>
       <div>
         <p className="font-semibold">{name}</p>
         <p className="text-sm text-muted-foreground">{role}</p>
