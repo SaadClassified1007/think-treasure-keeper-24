@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Layout } from '@/components/Layout';
 import { NoteCard, Note } from '@/components/NoteCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, BookOpen, Upload, FolderKanban, Tag, Clock } from 'lucide-react';
+import { FileText, FolderKanban, Tag, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
@@ -16,7 +15,6 @@ const Dashboard = () => {
       id: '1',
       title: 'Introduction to AI Knowledge Management',
       content: 'AI-powered knowledge management systems can help organize and retrieve information more efficiently. These systems use natural language processing and machine learning algorithms to categorize and connect related information.',
-      tags: ['AI', 'Knowledge Management'],
       createdAt: new Date().toISOString(),
       category: 'Technology'
     },
@@ -24,7 +22,6 @@ const Dashboard = () => {
       id: '2',
       title: 'Effective Note-Taking Strategies',
       content: 'Research shows that effective note-taking involves active engagement with the material, not just passive recording. This includes summarizing concepts in your own words, asking questions, and making connections to existing knowledge.',
-      tags: ['Productivity', 'Learning'],
       createdAt: new Date().toISOString(),
       category: 'Productivity'
     }
@@ -32,14 +29,12 @@ const Dashboard = () => {
   
   const stats = [
     { label: 'Total Notes', value: 24, icon: FileText },
-    { label: 'Flashcards', value: 86, icon: BookOpen },
     { label: 'Categories', value: 8, icon: Tag },
     { label: 'Collections', value: 4, icon: FolderKanban }
   ];
 
   const recentActivity = [
     { type: 'note', action: 'created', title: 'Advanced AI Concepts in Education', time: '2 hours ago' },
-    { type: 'flashcard', action: 'created', title: 'What is spaced repetition?', time: '5 hours ago' },
     { type: 'category', action: 'added', title: 'Education', time: '1 day ago' },
     { type: 'file', action: 'uploaded', title: 'Research-Paper-AI.pdf', time: '2 days ago' },
   ];
@@ -108,7 +103,6 @@ const Dashboard = () => {
                     <div key={i} className="flex items-start gap-3">
                       <div className="mt-0.5">
                         {activity.type === 'note' && <FileText size={16} className="text-blue-500" />}
-                        {activity.type === 'flashcard' && <BookOpen size={16} className="text-green-500" />}
                         {activity.type === 'category' && <Tag size={16} className="text-yellow-500" />}
                         {activity.type === 'file' && <Upload size={16} className="text-purple-500" />}
                       </div>

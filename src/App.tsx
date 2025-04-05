@@ -15,6 +15,7 @@ import NoteView from "./pages/NoteView";
 import NotFound from "./pages/NotFound";
 import Categories from "./pages/Categories";
 import Collections from "./pages/Collections";
+import Flashcards from "./pages/Flashcards";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => {
             <Route path="/notes/:id" element={<NoteView />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/collections" element={<Collections />} />
+            <Route path="/flashcards" element={<Flashcards />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -5,7 +5,7 @@ import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Edit2, Trash2, ArrowLeft, Clock } from 'lucide-react';
+import { Edit2, Trash2, ArrowLeft, Clock, FileText } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useToast } from '@/components/ui/use-toast';
 import { Note } from '@/components/NoteCard';
@@ -95,6 +95,14 @@ const NoteView = () => {
     navigate('/notes');
   };
 
+  const handleSummarize = () => {
+    // This is a placeholder for future functionality
+    toast({
+      title: "Summarization",
+      description: "This feature will be available soon!",
+    });
+  };
+
   if (!note) {
     return (
       <Layout>
@@ -107,7 +115,7 @@ const NoteView = () => {
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto animate-fade-in">
+      <div className="max-w-6xl mx-auto animate-fade-in relative">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 space-y-4 sm:space-y-0">
           <div className="flex items-center">
             <Button
@@ -185,6 +193,16 @@ const NoteView = () => {
                 </div>
               </CardContent>
             </Card>
+            
+            {/* Summarize Button */}
+            <Button 
+              onClick={handleSummarize}
+              className="fixed bottom-6 right-6 rounded-full shadow-lg p-4 h-14 w-14 flex items-center justify-center"
+              variant="secondary"
+            >
+              <FileText size={20} />
+              <span className="sr-only">Summarize</span>
+            </Button>
           </>
         )}
       </div>
