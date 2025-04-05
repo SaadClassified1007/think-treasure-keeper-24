@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
@@ -25,7 +26,6 @@ const NoteView = () => {
       id: '1',
       title: 'Introduction to AI Knowledge Management',
       content: 'AI-powered knowledge management systems can help organize and retrieve information more efficiently. These systems use natural language processing and machine learning algorithms to categorize and connect related information.\n\n## Key benefits include:\n- Automated tagging and categorization\n- Improved search and discovery\n- Content summarization\n- Relationship mapping between pieces of information\n- Personalized content delivery based on user interests\n\nImplementing an effective AI-powered knowledge management system requires careful attention to data quality, algorithm selection, and user experience design.',
-      tags: ['AI', 'Knowledge Management'],
       createdAt: new Date().toISOString(),
       category: 'Technology'
     },
@@ -33,7 +33,6 @@ const NoteView = () => {
       id: '2',
       title: 'Effective Note-Taking Strategies',
       content: 'Research shows that effective note-taking involves active engagement with the material, not just passive recording. This includes summarizing concepts in your own words, asking questions, and making connections to existing knowledge.\n\n## Recommended techniques:\n1. Cornell Method: Divide your page into sections for notes, cues, and summary\n2. Mind Mapping: Create visual connections between ideas\n3. Outlining: Organize information hierarchically\n4. Charting: Use tables to compare and contrast concepts\n5. Sentence Method: Write complete sentences for each point\n\nDigital tools like NOTEIT can enhance these methods with features like tagging, search, and integration with other resources.',
-      tags: ['Productivity', 'Learning'],
       createdAt: new Date().toISOString(),
       category: 'Productivity'
     },
@@ -41,7 +40,6 @@ const NoteView = () => {
       id: '3',
       title: 'The Science of Memory and Learning',
       content: '# Memory Formation\n\nSpaced repetition is a learning technique that involves reviewing information at increasing intervals. This approach leverages the psychological spacing effect, which demonstrates that information is more effectively stored in long-term memory when it\'s studied multiple times over spaced intervals.\n\n## The Forgetting Curve\n\nThe forgetting curve, first described by Hermann Ebbinghaus, shows how information is lost over time when there is no attempt to retain it. The curve is steep, with significant information loss occurring within the first few days after learning.\n\n## Sleep and Memory\n\nMemory consolidation occurs during sleep, making adequate rest essential for effective learning. During deep sleep, the brain processes and strengthens neural connections formed during waking hours.\n\n## Active Recall\n\nFlashcards are particularly effective for learning because they utilize active recall, which strengthens memory pathways more effectively than passive review methods like rereading.',
-      tags: ['Learning', 'Memory', 'Science'],
       createdAt: new Date().toISOString(),
       category: 'Science'
     },
@@ -49,7 +47,6 @@ const NoteView = () => {
       id: '4',
       title: 'Advanced AI Concepts in Education',
       content: '# AI in Education\n\n## Adaptive Learning\n\nAdaptive learning systems use AI to customize educational content based on individual student needs. These systems analyze performance data and learning patterns to deliver personalized learning experiences that address specific strengths and weaknesses.\n\n## Natural Language Processing\n\nNatural Language Processing (NLP) enables educational platforms to understand and respond to student questions, provide feedback on written assignments, and generate summaries of complex texts.\n\n## Knowledge Representation\n\nKnowledge graphs can represent relationships between concepts, helping students understand how ideas connect across different subjects and domains.\n\n## Predictive Analytics\n\nPredictive analytics can identify students at risk of falling behind, allowing for early intervention and support.\n\n## Assessment Innovation\n\nAI-powered assessment tools can evaluate not just factual knowledge but also higher-order thinking skills like critical analysis, problem-solving, and creativity.',
-      tags: ['AI', 'Education', 'Technology'],
       createdAt: new Date().toISOString(),
       category: 'Technology'
     }
@@ -188,14 +185,6 @@ const NoteView = () => {
                 </div>
               </CardContent>
             </Card>
-
-            <div className="flex flex-wrap gap-2 mt-4">
-              {note.tags.map((tag) => (
-                <Badge key={tag} variant="secondary">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
           </>
         )}
       </div>

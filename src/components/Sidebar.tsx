@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LucideIcon, Home, FileText, BookOpen, Upload, Brain, FolderKanban, Tag } from 'lucide-react';
+import { LucideIcon, Home, FileText, FolderKanban, Tag } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 
 interface NavItemProps {
@@ -33,7 +33,7 @@ export const Sidebar = () => {
     <aside className="w-64 border-r border-border bg-sidebar p-4 flex flex-col animate-fade-in">
       <div className="mb-8 px-4 py-2">
         <div className="flex items-center gap-2">
-          <Brain className="text-primary" size={24} />
+          <Home className="text-primary" size={24} />
           <h1 className="text-xl font-semibold">NOTEIT</h1>
         </div>
         <p className="text-xs text-muted-foreground mt-1">Your AI-powered knowledge system</p>
@@ -42,10 +42,8 @@ export const Sidebar = () => {
       <nav className="space-y-1 flex-1">
         <NavItem to="/dashboard" icon={Home} label="Dashboard" />
         <NavItem to="/notes" icon={FileText} label="Notes" />
-        <NavItem to="/flashcards" icon={BookOpen} label="Flashcards" />
         <NavItem to="/categories" icon={Tag} label="Categories" />
         <NavItem to="/collections" icon={FolderKanban} label="Collections" />
-        <NavItem to="/upload" icon={Upload} label="Upload" />
       </nav>
       
       <div className="mt-auto flex items-center justify-between p-4 border-t border-border">
