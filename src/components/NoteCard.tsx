@@ -1,16 +1,14 @@
 
-import React, { useState } from 'react';
-import { FileText, Tag, Clock, X } from 'lucide-react';
+import React from 'react';
+import { Clock } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { cn, truncateText } from '@/lib/utils';
 
 export interface Note {
   id: string;
   title: string;
   content: string;
-  tags: string[];
   createdAt: string;
   category: string;
 }
@@ -22,7 +20,6 @@ interface NoteCardProps {
 }
 
 export const NoteCard = ({ note, onClick, className }: NoteCardProps) => {
-  // Remove the dialog functionality since we're now using routing
   return (
     <Card 
       className={cn(
@@ -45,12 +42,10 @@ export const NoteCard = ({ note, onClick, className }: NoteCardProps) => {
           {truncateText(note.content, 150)}
         </p>
       </CardContent>
-      <CardFooter className="p-4 pt-2 flex gap-2 flex-wrap">
-        {note.tags.map((tag) => (
-          <Badge key={tag} variant="secondary" className="text-xs">
-            {tag}
-          </Badge>
-        ))}
+      <CardFooter className="p-4 pt-2">
+        <span className="text-xs text-muted-foreground">
+          {new Date(note.createdAt).toLocaleDateString()}
+        </span>
       </CardFooter>
     </Card>
   );
