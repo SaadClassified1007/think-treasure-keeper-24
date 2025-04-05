@@ -141,3 +141,154 @@
     @apply px-4 py-2 bg-transparent text-foreground rounded-md hover:bg-secondary animate-transition;
   }
 }
+
+/* Markdown rendering styles */
+.prose {
+  @apply text-foreground leading-normal;
+}
+
+.prose h1 {
+  @apply text-2xl font-bold mb-4 mt-6;
+}
+
+.prose h2 {
+  @apply text-xl font-bold mb-3 mt-5;
+}
+
+.prose h3 {
+  @apply text-lg font-semibold mb-2 mt-4;
+}
+
+.prose p {
+  @apply mb-4;
+}
+
+.prose ul {
+  @apply list-disc pl-5 mb-4;
+}
+
+.prose ol {
+  @apply list-decimal pl-5 mb-4;
+}
+
+.prose li {
+  @apply mb-1;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-primary/30 pl-4 italic my-4;
+}
+
+.prose code {
+  @apply bg-muted px-1 py-0.5 rounded text-sm;
+}
+
+.prose pre {
+  @apply bg-muted p-4 rounded-md overflow-auto my-4;
+}
+
+.prose a {
+  @apply text-primary hover:underline;
+}
+
+.prose table {
+  @apply w-full border-collapse my-4;
+}
+
+.prose th, .prose td {
+  @apply border border-border p-2;
+}
+
+.prose th {
+  @apply bg-secondary;
+}
+
+/* Additional animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulseHighlight {
+  0% { background-color: transparent; }
+  50% { background-color: hsl(var(--primary)/0.1); }
+  100% { background-color: transparent; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+.animate-pulse-highlight {
+  animation: pulseHighlight 2s ease-in-out;
+}
+
+/* Add these to fix MDEditor in dark mode */
+.w-md-editor {
+  @apply bg-card text-foreground !important;
+}
+
+.w-md-editor-text {
+  @apply text-foreground !important;
+}
+
+.w-md-editor-toolbar {
+  @apply bg-card border-border !important;
+}
+
+.w-md-editor-toolbar button {
+  @apply text-foreground !important;
+}
+
+.wmde-markdown {
+  @apply bg-card !important;
+}
+
+/* Make MDEditor more responsive */
+@media (max-width: 768px) {
+  .w-md-editor-toolbar {
+    flex-wrap: wrap;
+  }
+}
+
+/* Fix for backface visibility */
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Fix for 3D transforms */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.rotate-y-0 {
+  transform: rotateY(0deg);
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.transform-gpu {
+  transform: translateZ(0);
+}
+

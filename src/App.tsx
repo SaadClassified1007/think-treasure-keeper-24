@@ -6,10 +6,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { initializeTheme } from "@/lib/utils";
-import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
-import Index from "./pages/Index";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import Dashboard from "./pages/Index";
 import Notes from "./pages/Notes";
+import NoteView from "./pages/NoteView";
 import Flashcards from "./pages/Flashcards";
 import Upload from "./pages/Upload";
 import NotFound from "./pages/NotFound";
@@ -31,10 +33,12 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Auth />} />
-            <Route path="/landing" element={<Landing />} />
-            <Route path="/dashboard" element={<Index />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/notes" element={<Notes />} />
+            <Route path="/notes/:id" element={<NoteView />} />
             <Route path="/flashcards" element={<Flashcards />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/collections" element={<Collections />} />

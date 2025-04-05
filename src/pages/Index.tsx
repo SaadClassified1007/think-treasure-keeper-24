@@ -2,13 +2,12 @@
 import React from 'react';
 import { Layout } from '@/components/Layout';
 import { NoteCard, Note } from '@/components/NoteCard';
-import { FlashcardView, Flashcard } from '@/components/FlashcardView';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, BookOpen, Upload, BarChart, FolderKanban, Tag, Clock } from 'lucide-react';
+import { FileText, BookOpen, Upload, FolderKanban, Tag, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const Index = () => {
+const Dashboard = () => {
   const navigate = useNavigate();
   
   // Mock data
@@ -31,15 +30,6 @@ const Index = () => {
     }
   ];
   
-  const featuredFlashcards: Flashcard[] = [
-    {
-      id: 'f1',
-      question: 'What are the key benefits of AI-powered knowledge management?',
-      answer: 'Automated organization, improved retrieval, content summarization, and enhanced connections between related information.',
-      category: 'Technology'
-    }
-  ];
-  
   const stats = [
     { label: 'Total Notes', value: 24, icon: FileText },
     { label: 'Flashcards', value: 86, icon: BookOpen },
@@ -53,6 +43,10 @@ const Index = () => {
     { type: 'category', action: 'added', title: 'Education', time: '1 day ago' },
     { type: 'file', action: 'uploaded', title: 'Research-Paper-AI.pdf', time: '2 days ago' },
   ];
+
+  const handleNoteClick = (id: string) => {
+    navigate(`/notes/${id}`);
+  };
 
   return (
     <Layout>
@@ -85,8 +79,8 @@ const Index = () => {
           })}
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-2 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <div className="md:col-span-8 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-medium">Recent Notes</h2>
               <Button variant="ghost" onClick={() => navigate('/notes')}>
@@ -99,6 +93,7 @@ const Index = () => {
                 <NoteCard 
                   key={note.id} 
                   note={note}
+                  onClick={() => handleNoteClick(note.id)}
                 />
               ))}
             </div>
@@ -133,18 +128,7 @@ const Index = () => {
             </Card>
           </div>
           
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-medium">Flashcards</h2>
-              <Button variant="ghost" onClick={() => navigate('/flashcards')}>
-                View All
-              </Button>
-            </div>
-            
-            <Card className="p-6 animate-scale-in">
-              <FlashcardView flashcards={featuredFlashcards} />
-            </Card>
-            
+          <div className="md:col-span-4 space-y-4">
             <Card className="animate-scale-in">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Quick Actions</CardTitle>
@@ -178,4 +162,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Dashboard;

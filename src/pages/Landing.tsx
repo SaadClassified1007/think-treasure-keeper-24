@@ -19,12 +19,12 @@ const Landing = () => {
           <ThemeToggle />
           <Button 
             variant="outline" 
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/signin')}
           >
-            Login
+            Sign In
           </Button>
           <Button 
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/signup')}
           >
             Get Started
           </Button>
@@ -42,7 +42,7 @@ const Landing = () => {
         <Button 
           size="lg" 
           className="text-lg px-8 py-6"
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/signin')}
         >
           Get Started For Free
         </Button>
