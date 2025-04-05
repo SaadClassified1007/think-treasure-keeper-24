@@ -3,7 +3,7 @@ import { Layout } from '@/components/Layout';
 import { NoteCard, Note } from '@/components/NoteCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, FolderKanban, Tag, Clock } from 'lucide-react';
+import { FileText, FolderKanban, Tag, Clock, Upload, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {

@@ -159,6 +159,27 @@ const Landing = () => {
               title="Intelligent Note-Taking"
               description="Take notes efficiently with AI-assisted formatting and organization"
             />
+            <FeatureCard 
+              icon={FileText}
+              title="Upload Documents"
+              description="Want to upload documents? Just drag and drop them into NOTEIT"
+            />
+            <FeatureCard 
+              icon={FileText}
+              title="AI powered summarization"
+              description="Summarize your notes and documents with AI to get the key points quickly"
+            />
+            <FeatureCard 
+            icon={FileText}
+            title="Markdown Editing"
+            description="Write and style your notes seamlessly using a powerful, built-in markdown editor"
+          />
+          <FeatureCard 
+            icon={FileText}
+            title="Secure & Private"
+            description="Your data is protected with JWT authentication and secure storage practices"
+          />
+
           </div>
         </div>
       </section>
