@@ -7,13 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Search, Filter, BookOpen } from 'lucide-react';
+import { Plus, Search, BookOpen } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/components/ui/use-toast';
 
 const Flashcards = () => {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all"); // Changed from null to "all"
   
   const categorizedFlashcards = {
     'Technology': [
@@ -76,7 +78,7 @@ const Flashcards = () => {
   
   // Filter flashcards by search query and category
   const filteredFlashcards = Object.entries(categorizedFlashcards)
-    .filter(([category]) => !selectedCategory || category === selectedCategory)
+    .filter(([category]) => selectedCategory === "all" || category === selectedCategory)
     .map(([category, cards]) => ({
       category,
       cards: cards.filter(card => 
@@ -92,6 +94,10 @@ const Flashcards = () => {
   const handleCreateFlashcard = () => {
     // In a real app, this would add to the state
     console.log('Created flashcard:', newFlashcard);
+    toast({
+      title: "Flashcard created",
+      description: "Your new flashcard has been created successfully."
+    });
     setNewFlashcard({
       question: '',
       answer: '',
@@ -194,12 +200,12 @@ const Flashcards = () => {
               className="pl-10"
             />
           </div>
-          <Select value={selectedCategory || ''} onValueChange={(value) => setSelectedCategory(value || null)}>
+          <Select value={selectedCategory} onValueChange={(value) => setSelectedCategory(value)}>
             <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
@@ -221,7 +227,7 @@ const Flashcards = () => {
                 <BookOpen className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 className="mt-4 text-lg font-medium">No flashcards found</h3>
                 <p className="text-muted-foreground">
-                  {searchQuery || selectedCategory
+                  {searchQuery || selectedCategory !== "all"
                     ? "Try adjusting your filters"
                     : "Create your first flashcard to get started"}
                 </p>
@@ -254,9 +260,9 @@ const Flashcards = () => {
                 <CardDescription>Review all your flashcards at once</CardDescription>
               </CardHeader>
               <CardContent>
-                {searchQuery || selectedCategory ? (
+                {searchQuery || selectedCategory !== "all" ? (
                   <FlashcardView flashcards={allFlashcards.filter(card => 
-                    (!selectedCategory || card.category === selectedCategory) &&
+                    (selectedCategory === "all" || card.category === selectedCategory) &&
                     (searchQuery === '' || 
                     card.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
                     card.answer.toLowerCase().includes(searchQuery.toLowerCase()))

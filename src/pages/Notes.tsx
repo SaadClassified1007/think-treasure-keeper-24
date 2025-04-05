@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { NoteCard, Note } from '@/components/NoteCard';
 import { Button } from '@/components/ui/button';
@@ -7,12 +8,15 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Search, Tag, FileText } from 'lucide-react';
+import { Plus, Search, FileText } from 'lucide-react';
 import { categorizeText, extractKeywords } from '@/utils/ai';
+import { useToast } from '@/components/ui/use-toast';
 
 const Notes = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string>("all"); // Changed from null to "all"
   const [notes, setNotes] = useState<Note[]>([
     {
       id: '1',
@@ -63,7 +67,7 @@ const Notes = () => {
       note.content.toLowerCase().includes(searchQuery.toLowerCase()) || 
       note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     
-    const matchesCategory = categoryFilter === null || note.category === categoryFilter;
+    const matchesCategory = categoryFilter === "all" || note.category === categoryFilter;
     
     return matchesSearch && matchesCategory;
   });
@@ -84,6 +88,15 @@ const Notes = () => {
     setNotes(prev => [createdNote, ...prev]);
     setNewNote({ title: '', content: '', tags: '' });
     setIsNewNoteDialogOpen(false);
+    
+    toast({
+      title: "Note created",
+      description: "Your new note has been created successfully.",
+    });
+  };
+  
+  const handleNoteClick = (id: string) => {
+    navigate(`/notes/${id}`);
   };
 
   return (
@@ -171,12 +184,12 @@ const Notes = () => {
               className="pl-10"
             />
           </div>
-          <Select value={categoryFilter || ''} onValueChange={(value) => setCategoryFilter(value || null)}>
+          <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value)}>
             <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
@@ -191,7 +204,7 @@ const Notes = () => {
             <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="mt-4 text-lg font-medium">No notes found</h3>
             <p className="text-muted-foreground">
-              {searchQuery || categoryFilter
+              {searchQuery || categoryFilter !== "all"
                 ? "Try adjusting your filters"
                 : "Create your first note to get started"}
             </p>
@@ -209,6 +222,7 @@ const Notes = () => {
               <NoteCard 
                 key={note.id} 
                 note={note}
+                onClick={() => handleNoteClick(note.id)}
                 className="h-full"
               />
             ))}
