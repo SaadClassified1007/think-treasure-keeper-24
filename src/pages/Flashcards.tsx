@@ -194,12 +194,13 @@ const Flashcards = () => {
               className="pl-10"
             />
           </div>
+          
           <Select value={selectedCategory || ''} onValueChange={(value) => setSelectedCategory(value || null)}>
             <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="x">All Categories</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
