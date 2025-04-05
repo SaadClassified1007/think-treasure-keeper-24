@@ -3,7 +3,7 @@ import { Layout } from '@/components/Layout';
 import { NoteCard, Note } from '@/components/NoteCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, FolderKanban, Tag, Clock, Upload, BookOpen } from 'lucide-react';
+import { FileText, FolderKanban, Tag, Clock, BookText, ArrowUpToLine } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
@@ -53,7 +53,7 @@ const Dashboard = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {stats.map((stat, i) => {
             const Icon = stat.icon;
             return (
@@ -93,7 +93,7 @@ const Dashboard = () => {
               ))}
             </div>
             
-            <Card className="mt-4 animate-fade-in">
+            <Card className="mt-4 animate-fade-in glass-card">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Recent Activity</CardTitle>
               </CardHeader>
@@ -104,7 +104,7 @@ const Dashboard = () => {
                       <div className="mt-0.5">
                         {activity.type === 'note' && <FileText size={16} className="text-blue-500" />}
                         {activity.type === 'category' && <Tag size={16} className="text-yellow-500" />}
-                        {activity.type === 'file' && <Upload size={16} className="text-purple-500" />}
+                        {activity.type === 'file' && <ArrowUpToLine size={16} className="text-purple-500" />}
                       </div>
                       <div className="flex-1">
                         <p className="text-sm">
@@ -123,26 +123,22 @@ const Dashboard = () => {
           </div>
           
           <div className="md:col-span-4 space-y-4">
-            <Card className="animate-scale-in">
+            <Card className="animate-scale-in glass-card">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Quick Actions</CardTitle>
                 <CardDescription>Common tasks you might want to do</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/notes')}>
+                  <Button variant="outline" className="w-full justify-start hover-btn" onClick={() => navigate('/notes')}>
                     <FileText className="mr-2 h-4 w-4" />
                     Create a new note
                   </Button>
-                  <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/flashcards')}>
-                    <BookOpen className="mr-2 h-4 w-4" />
+                  <Button variant="outline" className="w-full justify-start hover-btn" onClick={() => navigate('/flashcards')}>
+                    <BookText className="mr-2 h-4 w-4" />
                     Add flashcards
                   </Button>
-                  <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/upload')}>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload documents
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/categories')}>
+                  <Button variant="outline" className="w-full justify-start hover-btn" onClick={() => navigate('/categories')}>
                     <Tag className="mr-2 h-4 w-4" />
                     Manage categories
                   </Button>

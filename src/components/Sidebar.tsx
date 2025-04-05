@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LucideIcon, Home, FileText, FolderKanban, Tag } from 'lucide-react';
+import { LucideIcon, Home, FileText, FolderKanban, Tag, BookText } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 
 interface NavItemProps {
@@ -44,6 +43,7 @@ export const Sidebar = () => {
         <NavItem to="/notes" icon={FileText} label="Notes" />
         <NavItem to="/categories" icon={Tag} label="Categories" />
         <NavItem to="/collections" icon={FolderKanban} label="Collections" />
+        <NavItem to="/flashcards" icon={BookText} label="Flashcards" />
       </nav>
       
       <div className="mt-auto flex items-center justify-between p-4 border-t border-border">
