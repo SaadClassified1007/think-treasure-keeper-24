@@ -1,16 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Edit2, Trash2, ArrowLeft, Save, Eye, Clock } from 'lucide-react';
-import MDEditor from '@uiw/react-md-editor';
+import { Edit2, Trash2, ArrowLeft, Clock } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useToast } from '@/components/ui/use-toast';
 import { Note } from '@/components/NoteCard';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import NoteEditor from '@/components/NoteEditor';
 
 const NoteView = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,7 +17,6 @@ const NoteView = () => {
   const { toast } = useToast();
   const [note, setNote] = useState<Note | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editableContent, setEditableContent] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Mock data for demonstration
@@ -63,7 +61,6 @@ const NoteView = () => {
       const foundNote = mockNotes.find(n => n.id === id);
       if (foundNote) {
         setNote(foundNote);
-        setEditableContent(foundNote.content);
       } else {
         navigate('/notes');
         toast({
@@ -75,12 +72,13 @@ const NoteView = () => {
     }
   }, [id, navigate, toast]);
 
-  const handleSave = () => {
+  const handleSaveEdit = (title: string, content: string, attachedFiles: File[]) => {
     if (note) {
-      // In a real app, this would update the database
+      // In a real app, this would update the database and handle file uploads
       setNote({
         ...note,
-        content: editableContent
+        title: title,
+        content: content
       });
       setIsEditing(false);
       toast({
@@ -133,89 +131,73 @@ const NoteView = () => {
             </span>
           </div>
 
-          <div className="flex space-x-2">
-            {isEditing ? (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setEditableContent(note.content);
-                    setIsEditing(false);
-                  }}
-                  size="sm"
-                >
-                  Cancel
-                </Button>
-                <Button onClick={handleSave} size="sm">
-                  <Save size={16} className="mr-2" />
-                  Save
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsEditing(true)}
-                  size="sm"
-                >
-                  <Edit2 size={16} className="mr-2" />
-                  Edit
-                </Button>
-                <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="destructive" size="sm">
-                      <Trash2 size={16} className="mr-2" />
+          {!isEditing && (
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => setIsEditing(true)}
+                size="sm"
+              >
+                <Edit2 size={16} className="mr-2" />
+                Edit
+              </Button>
+              <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="destructive" size="sm">
+                    <Trash2 size={16} className="mr-2" />
+                    Delete
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you sure?</DialogTitle>
+                    <DialogDescription>
+                      This action cannot be undone. This will permanently delete your note.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button variant="destructive" onClick={handleDelete}>
                       Delete
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Are you sure?</DialogTitle>
-                      <DialogDescription>
-                        This action cannot be undone. This will permanently delete your note.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-                        Cancel
-                      </Button>
-                      <Button variant="destructive" onClick={handleDelete}>
-                        Delete
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </>
-            )}
-          </div>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          )}
         </div>
 
-        <h1 className="text-3xl font-semibold mb-6">{note.title}</h1>
+        {isEditing ? (
+          <NoteEditor 
+            initialTitle={note.title}
+            initialContent={note.content}
+            onSave={handleSaveEdit}
+            onCancel={() => setIsEditing(false)}
+            isEditing={true}
+          />
+        ) : (
+          <>
+            <h1 className="text-3xl font-semibold mb-6">{note.title}</h1>
 
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            {isEditing ? (
-              <MDEditor
-                value={editableContent}
-                onChange={(val) => setEditableContent(val || '')}
-                height={500}
-                preview="edit"
-              />
-            ) : (
-              <div className="prose prose-sm sm:prose max-w-none dark:prose-invert">
-                <ReactMarkdown>{note.content}</ReactMarkdown>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            <Card className="mb-6">
+              <CardContent className="p-6">
+                <div className="prose prose-sm sm:prose max-w-none dark:prose-invert">
+                  <ReactMarkdown>{note.content}</ReactMarkdown>
+                </div>
+              </CardContent>
+            </Card>
 
-        <div className="flex flex-wrap gap-2 mt-4">
-          {note.tags.map((tag) => (
-            <Badge key={tag} variant="secondary">
-              {tag}
-            </Badge>
-          ))}
-        </div>
+            <div className="flex flex-wrap gap-2 mt-4">
+              {note.tags.map((tag) => (
+                <Badge key={tag} variant="secondary">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </Layout>
   );

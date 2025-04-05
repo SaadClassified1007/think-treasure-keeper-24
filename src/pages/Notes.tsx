@@ -5,18 +5,18 @@ import { Layout } from '@/components/Layout';
 import { NoteCard, Note } from '@/components/NoteCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Plus, Search, FileText } from 'lucide-react';
-import { categorizeText, extractKeywords } from '@/utils/ai';
+import { categorizeText } from '@/utils/ai';
 import { useToast } from '@/components/ui/use-toast';
+import NoteEditor from '@/components/NoteEditor';
 
 const Notes = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string>("all"); // Changed from null to "all"
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [isCreatingNote, setIsCreatingNote] = useState(false);
   const [notes, setNotes] = useState<Note[]>([
     {
       id: '1',
@@ -52,13 +52,6 @@ const Notes = () => {
     }
   ]);
   
-  const [newNote, setNewNote] = useState({
-    title: '',
-    content: '',
-    tags: ''
-  });
-  const [isNewNoteDialogOpen, setIsNewNoteDialogOpen] = useState(false);
-  
   const categories = Array.from(new Set(notes.map(note => note.category)));
   
   const filteredNotes = notes.filter(note => {
@@ -72,22 +65,21 @@ const Notes = () => {
     return matchesSearch && matchesCategory;
   });
   
-  const handleCreateNote = () => {
-    const tagArray = newNote.tags.split(',').map(tag => tag.trim()).filter(Boolean);
-    const category = categorizeText(newNote.content);
+  const handleCreateNote = (title: string, content: string, attachedFiles: File[]) => {
+    // In a real app, we'd also handle file uploads to a storage service
+    const category = categorizeText(content);
     
     const createdNote: Note = {
       id: Date.now().toString(),
-      title: newNote.title,
-      content: newNote.content,
-      tags: tagArray,
+      title: title,
+      content: content,
+      tags: [], // Tags functionality removed as requested
       createdAt: new Date().toISOString(),
       category
     };
     
     setNotes(prev => [createdNote, ...prev]);
-    setNewNote({ title: '', content: '', tags: '' });
-    setIsNewNoteDialogOpen(false);
+    setIsCreatingNote(false);
     
     toast({
       title: "Note created",
@@ -102,131 +94,92 @@ const Notes = () => {
   return (
     <Layout>
       <div className="space-y-6 max-w-6xl mx-auto">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">Notes</h1>
-            <p className="text-muted-foreground">Manage and organize your knowledge</p>
+        {isCreatingNote ? (
+          <div className="animate-fade-in">
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-2xl font-semibold">Create New Note</h1>
+              <Button 
+                variant="ghost" 
+                onClick={() => setIsCreatingNote(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+            
+            <NoteEditor 
+              onSave={handleCreateNote}
+              onCancel={() => setIsCreatingNote(false)}
+            />
           </div>
-          
-          <Dialog open={isNewNoteDialogOpen} onOpenChange={setIsNewNoteDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
+        ) : (
+          <>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-semibold tracking-tight">Notes</h1>
+                <p className="text-muted-foreground">Manage and organize your knowledge</p>
+              </div>
+              
+              <Button onClick={() => setIsCreatingNote(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Create Note
               </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>Create New Note</DialogTitle>
-                <DialogDescription>
-                  Add a new note to your knowledge base. AI will automatically categorize it.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <label htmlFor="title" className="text-sm font-medium">
-                    Title
-                  </label>
-                  <Input
-                    id="title"
-                    value={newNote.title}
-                    onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
-                    placeholder="Enter note title"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="content" className="text-sm font-medium">
-                    Content
-                  </label>
-                  <Textarea
-                    id="content"
-                    value={newNote.content}
-                    onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
-                    placeholder="Enter note content"
-                    rows={6}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="tags" className="text-sm font-medium">
-                    Tags (comma separated)
-                  </label>
-                  <Input
-                    id="tags"
-                    value={newNote.tags}
-                    onChange={(e) => setNewNote({ ...newNote, tags: e.target.value })}
-                    placeholder="e.g. AI, Learning, Technology"
-                  />
-                </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-grow">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search notes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
               </div>
-              
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsNewNoteDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreateNote} disabled={!newNote.title || !newNote.content}>
+              <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value)}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {filteredNotes.length === 0 ? (
+              <div className="text-center py-12 glass-card rounded-lg animate-fade-in">
+                <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-medium">No notes found</h3>
+                <p className="text-muted-foreground">
+                  {searchQuery || categoryFilter !== "all"
+                    ? "Try adjusting your filters"
+                    : "Create your first note to get started"}
+                </p>
+                <Button
+                  className="mt-4"
+                  onClick={() => setIsCreatingNote(true)}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
                   Create Note
                 </Button>
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-grow">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Search notes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value)}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        
-        {filteredNotes.length === 0 ? (
-          <div className="text-center py-12 glass-card rounded-lg animate-fade-in">
-            <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-4 text-lg font-medium">No notes found</h3>
-            <p className="text-muted-foreground">
-              {searchQuery || categoryFilter !== "all"
-                ? "Try adjusting your filters"
-                : "Create your first note to get started"}
-            </p>
-            <Button
-              className="mt-4"
-              onClick={() => setIsNewNoteDialogOpen(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Create Note
-            </Button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {filteredNotes.map((note) => (
-              <NoteCard 
-                key={note.id} 
-                note={note}
-                onClick={() => handleNoteClick(note.id)}
-                className="h-full"
-              />
-            ))}
-          </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {filteredNotes.map((note) => (
+                  <NoteCard 
+                    key={note.id} 
+                    note={note}
+                    onClick={() => handleNoteClick(note.id)}
+                    className="h-full"
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </Layout>

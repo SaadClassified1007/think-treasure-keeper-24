@@ -13,7 +13,6 @@ import Dashboard from "./pages/Index";
 import Notes from "./pages/Notes";
 import NoteView from "./pages/NoteView";
 import Flashcards from "./pages/Flashcards";
-import Upload from "./pages/Upload";
 import NotFound from "./pages/NotFound";
 import Categories from "./pages/Categories";
 import Collections from "./pages/Collections";
@@ -42,7 +41,6 @@ const App = () => {
             <Route path="/flashcards" element={<Flashcards />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/collections" element={<Collections />} />
-            <Route path="/upload" element={<Upload />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
