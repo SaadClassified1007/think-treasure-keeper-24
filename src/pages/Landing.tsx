@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -21,6 +20,7 @@ import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -55,66 +55,65 @@ const Landing = () => {
     }
   }, [mousePosition]);
 
-  // GSAP animations
   useEffect(() => {
     // Set loaded state to trigger initial animations
     setIsLoaded(true);
-    
+  
     // Hero section animation
     const heroTl = gsap.timeline({ delay: 0.5 });
     if (heroRef.current) {
-      heroTl.from(heroRef.current.querySelectorAll('.animate-hero'), { 
-        y: 50,
-        opacity: 0, 
-        duration: 0.8,
-        stagger: 0.15,
-        ease: "power3.out" 
-      });
+      const heroElements = heroRef.current.querySelectorAll('.animate-hero');
+      if (heroElements.length > 0) {
+        heroTl.fromTo(heroElements, 
+          { y: 50, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: "power3.out" }
+        );
+      }
     }
-    
-    if (ctaRef.current) {
-      heroTl.from(ctaRef.current.children, { 
-        y: 30,
-        opacity: 0, 
-        scale: 0.9,
-        duration: 0.6,
-        stagger: 0.2, 
-        ease: "back.out(1.7)" 
-      }, "-=0.4");
+  
+    if (ctaRef.current && ctaRef.current.children.length > 0) {
+      heroTl.fromTo(ctaRef.current.children,
+        { y: 30, opacity: 0, scale: 0.9 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.6, stagger: 0.2, ease: "back.out(1.7)" },
+        "-=0.4"
+      );
     }
-    
+  
     // Setup section animations
     sectionRefs.current.forEach((section) => {
       if (section) {
-        // Animate section headline
-        gsap.from(section.querySelector('.section-title'), { 
-          scrollTrigger: {
-            trigger: section,
-            start: "top 80%",
-            toggleActions: "play none none none"
-          },
-          y: 30,
-          opacity: 0, 
-          duration: 0.8,
-          ease: "power2.out"
-        });
-        
-        // Animate section items
-        gsap.from(section.querySelectorAll('.animate-item'), { 
-          scrollTrigger: {
-            trigger: section,
-            start: "top 75%",
-            toggleActions: "play none none none"
-          },
-          y: 40,
-          opacity: 0, 
-          duration: 0.5,
-          stagger: 0.1,
-          ease: "power3.out"
-        });
+        const sectionTitle = section.querySelector('.section-title');
+        if (sectionTitle) {
+          gsap.fromTo(sectionTitle, 
+            { y: 30, opacity: 0 },
+            { 
+              scrollTrigger: {
+                trigger: section,
+                start: "top 80%",
+                toggleActions: "play none none none"
+              },
+              y: 0, opacity: 1, duration: 0.8, ease: "power2.out" 
+            }
+          );
+        }
+  
+        const animateItems = section.querySelectorAll('.animate-item');
+        if (animateItems.length > 0) {
+          gsap.fromTo(animateItems,
+            { y: 40, opacity: 0 },
+            {
+              scrollTrigger: {
+                trigger: section,
+                start: "top 75%",
+                toggleActions: "play none none none"
+              },
+              y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power3.out"
+            }
+          );
+        }
       }
     });
-    
+  
     // Cleanup function to avoid memory leaks
     return () => {
       ScrollTrigger.getAll().forEach(trigger => trigger.kill());
@@ -129,32 +128,38 @@ const Landing = () => {
       ease: "power3.inOut"
     });
   };
-
+  
   // Add refs to an array function
   const addToRefs = (el: HTMLElement | null) => {
     if (el && !sectionRefs.current.includes(el)) {
       sectionRefs.current.push(el);
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
       {/* Cursor effect */}
-      <div ref={cursorRef} className="cursor-glow fixed pointer-events-none z-0" />
+      <div ref={cursorRef} className="cursor-glow fixed pointer-events-none z-0" style={{
+        width: '300px',
+        height: '300px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(79, 70, 229, 0.05) 70%, transparent 100%)',
+        transform: 'translate(-50%, -50%)',
+      }} />
       
       {/* Background gradient elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <div className="absolute top-[10%] left-[5%] w-[30rem] h-[30rem] bg-blue-500/20 rounded-full filter blur-[6rem] opacity-30 animate-pulse" />
-        <div className="absolute top-[40%] right-[5%] w-[40rem] h-[25rem] bg-purple-500/20 rounded-full filter blur-[7rem] opacity-30 animate-pulse" style={{ animationDuration: '15s' }} />
-        <div className="absolute bottom-[10%] left-[20%] w-[35rem] h-[25rem] bg-teal-500/20 rounded-full filter blur-[8rem] opacity-20 animate-pulse" style={{ animationDuration: '20s' }} />
+        <div className="absolute top-[10%] left-[5%] w-[30rem] h-[30rem] bg-blue-500/20 rounded-full filter blur-lg opacity-30 animate-pulse" />
+        <div className="absolute top-[40%] right-[5%] w-[40rem] h-[25rem] bg-purple-500/20 rounded-full filter blur-lg opacity-30 animate-pulse" style={{ animationDuration: '15s' }} />
+        <div className="absolute bottom-[10%] left-[20%] w-[35rem] h-[25rem] bg-teal-500/20 rounded-full filter blur-lg opacity-20 animate-pulse" style={{ animationDuration: '20s' }} />
       </div>
 
       {/* Navbar */}
       <header className="border-b border-border/40 py-4 px-6 flex items-center justify-between bg-background/50 backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center">
-          <h1 className="text-2xl font-bold tracking-tight font-space">NOTEIT</h1>
+          <h1 className="text-2xl font-bold tracking-tight font-sans">NOTEIT</h1>
         </div>
-        <div className="hidden md:flex items-center gap-8 font-jakarta">
+        <div className="hidden md:flex items-center gap-8 font-sans">
           <button onClick={() => scrollToSection('features')} className="text-foreground/80 hover:text-primary transition-colors">Features</button>
           <button onClick={() => scrollToSection('howItWorks')} className="text-foreground/80 hover:text-primary transition-colors">How It Works</button>
           <button onClick={() => scrollToSection('solutions')} className="text-foreground/80 hover:text-primary transition-colors">Solutions</button>
@@ -164,13 +169,13 @@ const Landing = () => {
           <Button 
             variant="outline" 
             onClick={() => navigate('/signin')}
-            className="font-jakarta"
+            className="font-sans"
           >
             Sign In
           </Button>
           <Button 
             onClick={() => navigate('/signup')}
-            className="font-jakarta relative overflow-hidden group"
+            className="font-sans relative overflow-hidden group"
           >
             <span className="relative z-10">Get Started</span>
             <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
@@ -181,10 +186,10 @@ const Landing = () => {
       {/* Hero Section */}
       <section ref={heroRef} className="flex-1 flex flex-col items-center justify-center text-center p-6 md:p-10 max-w-6xl mx-auto mt-10 mb-20 relative">
         <div className="relative z-10 spotlight">
-          <h1 className="animate-hero text-4xl md:text-6xl xl:text-7xl font-bold mb-6 font-space leading-tight bg-gradient-to-br from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
+          <h1 className="animate-hero text-4xl md:text-6xl xl:text-7xl font-bold mb-6 font-sans leading-tight bg-gradient-to-br from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
             AI-Powered Notes, Flashcards <br className="hidden md:block" /> & Knowledge That Grows With You
           </h1>
-          <p className="animate-hero text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl font-jakarta">
+          <p className="animate-hero text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl font-sans text-center">
             NOTEIT is your personal AI for mastering what matters.
           </p>
           <div ref={ctaRef} className="flex flex-col sm:flex-row justify-center gap-4">
@@ -202,13 +207,21 @@ const Landing = () => {
               onClick={() => scrollToSection('howItWorks')}
             >
               See How It Works
-              <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+              <ArrowRight className="ml-2 h-7 w-7 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
           </div>
           
-          <div className="mt-16 animate-hero glass-morphism p-5 rounded-xl flex justify-center items-center">
+          <div className="mt-16 animate-hero glass-morphism p-5 rounded-xl flex justify-center items-center" style={{
+            background: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          }}>
             <div className="w-full max-w-4xl aspect-[16/9] rounded-lg bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-indigo-500/30 flex items-center justify-center">
-              <div className="p-6 glass-morphism rounded-xl flex items-center gap-4">
+              <div className="p-6 glass-morphism rounded-xl flex items-center gap-4" style={{
+                background: 'rgba(255, 255, 255, 0.07)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}>
                 <Brain className="h-10 w-10 text-primary" />
                 <div className="text-left">
                   <h3 className="text-xl font-semibold">AI-Powered Knowledge Management</h3>
@@ -221,17 +234,25 @@ const Landing = () => {
       </section>
 
       {/* What We Solve Section */}
-      <section ref={(el) => addToRefs(el)} id="solutions" className="py-24 px-6 md:px-10 glass-morphism my-10">
+      <section ref={(el) => addToRefs(el)} id="solutions" className="py-24 px-6 md:px-10 glass-morphism my-10" style={{
+        background: 'rgba(255, 255, 255, 0.05)',
+        backdropFilter: 'blur(8px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+      }}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="section-title text-3xl md:text-5xl font-bold mb-4">The Problems We Solve</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-jakarta">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-sans">
               NOTEIT transforms how you capture, organize, and retain knowledge.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <div className="glass-card p-8 rounded-2xl animate-item hover:shadow-xl hover:shadow-primary/5 transition duration-300 order-2 md:order-1">
+            <div className="glass-card p-8 rounded-2xl animate-item hover:shadow-xl hover:shadow-primary/5 transition duration-300 order-2 md:order-1" style={{
+              background: 'rgba(255, 255, 255, 0.07)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}>
               <div className="space-y-6">
                 <div className="flex items-start gap-4 animate-item">
                   <div className="bg-primary/10 p-2 rounded-full">
@@ -276,12 +297,18 @@ const Landing = () => {
             </div>
             
             <div className="relative h-full flex items-center justify-center order-1 md:order-2">
-              <div className="glass-card p-6 rounded-2xl w-full max-w-lg animate-item">
+              <div className="glass-card p-6 rounded-2xl w-full max-w-lg animate-item" style={{
+                background: 'rgba(255, 255, 255, 0.07)', 
+                backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}>
                 <div className="bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-indigo-500/20 p-8 rounded-xl relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxwYXRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMTQ3LCAyMDQsIDI1NSwgMC4xKSIgc3Ryb2tlLXdpZHRoPSIxIj48L3BhdGg+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIj48L3JlY3Q+PC9zdmc+')] opacity-20"></div>
+                  <div className="absolute top-0 left-0 w-full h-full opacity-20" style={{
+                    backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100%25\' height=\'100%25\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cdefs%3E%3Cpattern id=\'grid\' width=\'40\' height=\'40\' patternUnits=\'userSpaceOnUse\'%3E%3Cpath d=\'M 40 0 L 0 0 0 40\' fill=\'none\' stroke=\'rgba(147, 204, 255, 0.1)\' stroke-width=\'1\'%3E%3C/path%3E%3C/pattern%3E%3C/defs%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'url(%23grid)\'%3E%3C/rect%3E%3C/svg%3E")',
+                  }}></div>
                   <div className="relative z-10 flex flex-col items-center">
                     <Brain className="h-24 w-24 mb-6 text-primary" />
-                    <h3 className="text-2xl md:text-3xl font-bold font-space text-center mb-4">AI Understands Your Content</h3>
+                    <h3 className="text-2xl md:text-3xl font-bold font-sans text-center mb-4">AI Understands Your Content</h3>
                     <p className="text-center text-muted-foreground">
                       Our artificial intelligence analyzes your notes and documents, extracting key concepts and relationships to create a personalized knowledge graph.
                     </p>
@@ -289,8 +316,8 @@ const Landing = () => {
                 </div>
               </div>
               
-              <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-blue-500/20 rounded-full filter blur-[5rem] animate-pulse"></div>
-              <div className="absolute -top-8 -left-8 w-60 h-60 bg-purple-500/20 rounded-full filter blur-[5rem] animate-pulse" style={{ animationDuration: '15s' }}></div>
+              <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-blue-500/20 rounded-full filter blur-lg animate-pulse"></div>
+              <div className="absolute -top-8 -left-8 w-60 h-60 bg-purple-500/20 rounded-full filter blur-lg animate-pulse" style={{ animationDuration: '15s' }}></div>
             </div>
           </div>
         </div>
@@ -300,8 +327,8 @@ const Landing = () => {
       <section ref={(el) => addToRefs(el)} id="features" className="py-24 px-6 md:px-10 relative">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="section-title text-3xl md:text-5xl font-bold mb-4 font-space">Key Features</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-jakarta">
+            <h2 className="section-title text-3xl md:text-5xl font-bold mb-4 font-sans">Key Features</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-sans">
               Everything you need to capture, organize, and master knowledge
             </p>
           </div>
@@ -348,11 +375,15 @@ const Landing = () => {
       </section>
 
       {/* How It Works Section */}
-      <section ref={(el) => addToRefs(el)} id="howItWorks" className="py-24 px-6 md:px-10 glass-morphism">
+      <section ref={(el) => addToRefs(el)} id="howItWorks" className="py-24 px-6 md:px-10 glass-morphism" style={{
+        background: 'rgba(255, 255, 255, 0.05)',
+        backdropFilter: 'blur(8px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+      }}>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="section-title text-3xl md:text-5xl font-bold mb-4 font-space">How NOTEIT Works</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-jakarta">
+            <h2 className="section-title text-3xl md:text-5xl font-bold mb-4 font-sans">How NOTEIT Works</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-sans">
               Transform how you capture and retain knowledge in just four simple steps
             </p>
           </div>
@@ -391,8 +422,8 @@ const Landing = () => {
       <section ref={(el) => addToRefs(el)} className="py-24 px-6 md:px-10">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="section-title text-3xl md:text-5xl font-bold mb-4 font-space">What Our Users Say</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-jakarta">
+            <h2 className="section-title text-3xl md:text-5xl font-bold mb-4 font-sans">What Our Users Say</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-sans">
               Join thousands of students and professionals who've transformed their learning
             </p>
           </div>
@@ -423,12 +454,20 @@ const Landing = () => {
       {/* CTA Section */}
       <section ref={(el) => addToRefs(el)} className="py-20 px-6 md:px-10 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-indigo-900/40"></div>
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMDAwMDAwMWEiPjwvcmVjdD4KPHBhdGggZD0iTTAgNUw1IDBaTTYgNEw0IDZaTS0xIDFMMSAtMVoiIHN0cm9rZT0iI2ZmZmZmZjBhIiBzdHJva2Utd2lkdGg9IjEiPjwvcGF0aD4KPC9zdmc+')] opacity-20"></div>
+        <div className="absolute inset-0" style={{
+          background: 'url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMDAwMDAwMWEiPjwvcmVjdD4KPHBhdGggZD0iTTAgNUw1IDBaTTYgNEw0IDZaTS0xIDFMMSAtMVoiIHN0cm9rZT0iI2ZmZmZmZjBhIiBzdHJva2Utd2lkdGg9IjEiPjwvcGF0aD4KPC9zdmc+")',
+          opacity: 0.2,
+        }}></div>
         
-        <div className="max-w-5xl mx-auto relative z-10 glass-panel p-12 rounded-2xl border border-white/10 shadow-2xl">
+        <div className="max-w-5xl mx-auto relative z-10 glass-panel p-12 rounded-2xl border border-white/10 shadow-2xl" style={{
+          background: 'rgba(255, 255, 255, 0.07)',
+          backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        }}>
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 font-space">Ready to Learn Smarter?</h2>
-            <p className="text-lg md:text-xl font-jakarta text-muted-foreground mb-8">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 font-sans">Ready to Learn Smarter?</h2>
+            <p className="text-lg md:text-xl font-sans text-muted-foreground mb-8">
               Join thousands of students, researchers, and professionals who have enhanced their learning with NOTEIT.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
@@ -472,13 +511,13 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
             <div>
-              <h3 className="text-2xl font-semibold mb-4 font-space">NOTEIT</h3>
+              <h3 className="text-2xl font-semibold mb-4 font-sans">NOTEIT</h3>
               <p className="text-muted-foreground">
                 AI-powered note-taking and knowledge management for the modern learner.
               </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-4 font-space">Features</h3>
+              <h3 className="text-lg font-semibold mb-4 font-sans">Features</h3>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li className="hover:text-foreground transition-colors">Smart Notes</li>
                 <li className="hover:text-foreground transition-colors">AI Categorization</li>
@@ -487,7 +526,7 @@ const Landing = () => {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-4 font-space">Resources</h3>
+              <h3 className="text-lg font-semibold mb-4 font-sans">Resources</h3>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li className="hover:text-foreground transition-colors">Help Center</li>
                 <li className="hover:text-foreground transition-colors">Documentation</li>
@@ -496,7 +535,7 @@ const Landing = () => {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-4 font-space">Company</h3>
+              <h3 className="text-lg font-semibold mb-4 font-sans">Company</h3>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li className="hover:text-foreground transition-colors">About Us</li>
                 <li className="hover:text-foreground transition-colors">Blog</li>
@@ -519,7 +558,8 @@ const Landing = () => {
   );
 };
 
-// Feature Card Component with staggered animation
+
+
 const FeatureCard = ({ 
   icon: Icon, 
   title, 
