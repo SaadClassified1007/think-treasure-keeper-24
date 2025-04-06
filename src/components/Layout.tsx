@@ -17,6 +17,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   const handleLogout = () => {
+    localStorage.clear(); // Clear local storage on logout
     navigate('/signin');
   };
   

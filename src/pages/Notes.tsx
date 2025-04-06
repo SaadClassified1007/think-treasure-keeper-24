@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { NoteCard, Note } from '@/components/NoteCard';
@@ -17,37 +17,81 @@ const Notes = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [isCreatingNote, setIsCreatingNote] = useState(false);
+
   const [notes, setNotes] = useState<Note[]>([
-    {
-      id: '1',
-      title: 'Introduction to AI Knowledge Management',
-      content: 'AI-powered knowledge management systems can help organize and retrieve information more efficiently. These systems use natural language processing and machine learning algorithms to categorize and connect related information.\n\nKey benefits include:\n- Automated tagging and categorization\n- Improved search and discovery\n- Content summarization\n- Relationship mapping between pieces of information\n- Personalized content delivery based on user interests\n\nImplementing an effective AI-powered knowledge management system requires careful attention to data quality, algorithm selection, and user experience design.',
-      createdAt: new Date().toISOString(),
-      category: 'Technology'
-    },
-    {
-      id: '2',
-      title: 'Effective Note-Taking Strategies',
-      content: 'Research shows that effective note-taking involves active engagement with the material, not just passive recording. This includes summarizing concepts in your own words, asking questions, and making connections to existing knowledge.\n\nRecommended techniques:\n1. Cornell Method: Divide your page into sections for notes, cues, and summary\n2. Mind Mapping: Create visual connections between ideas\n3. Outlining: Organize information hierarchically\n4. Charting: Use tables to compare and contrast concepts\n5. Sentence Method: Write complete sentences for each point\n\nDigital tools like NOTEIT can enhance these methods with features like tagging, search, and integration with other resources.',
-      createdAt: new Date().toISOString(),
-      category: 'Productivity'
-    },
-    {
-      id: '3',
-      title: 'The Science of Memory and Learning',
-      content: 'Spaced repetition is a learning technique that involves reviewing information at increasing intervals. This approach leverages the psychological spacing effect, which demonstrates that information is more effectively stored in long-term memory when it\'s studied multiple times over spaced intervals.\n\nThe forgetting curve, first described by Hermann Ebbinghaus, shows how information is lost over time when there is no attempt to retain it. The curve is steep, with significant information loss occurring within the first few days after learning.\n\nMemory consolidation occurs during sleep, making adequate rest essential for effective learning. During deep sleep, the brain processes and strengthens neural connections formed during waking hours.\n\nFlashcards are particularly effective for learning because they utilize active recall, which strengthens memory pathways more effectively than passive review methods like rereading.',
-      createdAt: new Date().toISOString(),
-      category: 'Science'
-    },
-    {
-      id: '4',
-      title: 'Advanced AI Concepts in Education',
-      content: 'Adaptive learning systems use AI to customize educational content based on individual student needs. These systems analyze performance data and learning patterns to deliver personalized learning experiences that address specific strengths and weaknesses.\n\nNatural Language Processing (NLP) enables educational platforms to understand and respond to student questions, provide feedback on written assignments, and generate summaries of complex texts.\n\nKnowledge graphs can represent relationships between concepts, helping students understand how ideas connect across different subjects and domains.\n\nPredictive analytics can identify students at risk of falling behind, allowing for early intervention and support.\n\nAI-powered assessment tools can evaluate not just factual knowledge but also higher-order thinking skills like critical analysis, problem-solving, and creativity.',
-      createdAt: new Date().toISOString(),
-      category: 'Technology'
-    }
+    // {
+    //   id: '1',
+    //   title: 'Introduction to AI Knowledge Management',
+    //   content: 'AI-powered knowledge management systems can help organize and retrieve information more efficiently. These systems use natural language processing and machine learning algorithms to categorize and connect related information.\n\nKey benefits include:\n- Automated tagging and categorization\n- Improved search and discovery\n- Content summarization\n- Relationship mapping between pieces of information\n- Personalized content delivery based on user interests\n\nImplementing an effective AI-powered knowledge management system requires careful attention to data quality, algorithm selection, and user experience design.',
+    //   createdAt: new Date().toISOString(),
+    //   category: 'Technology'
+    // },
+    // {
+    //   id: '2',
+    //   title: 'Effective Note-Taking Strategies',
+    //   content: 'Research shows that effective note-taking involves active engagement with the material, not just passive recording. This includes summarizing concepts in your own words, asking questions, and making connections to existing knowledge.\n\nRecommended techniques:\n1. Cornell Method: Divide your page into sections for notes, cues, and summary\n2. Mind Mapping: Create visual connections between ideas\n3. Outlining: Organize information hierarchically\n4. Charting: Use tables to compare and contrast concepts\n5. Sentence Method: Write complete sentences for each point\n\nDigital tools like NOTEIT can enhance these methods with features like tagging, search, and integration with other resources.',
+    //   createdAt: new Date().toISOString(),
+    //   category: 'Productivity'
+    // },
+    // {
+    //   id: '3',
+    //   title: 'The Science of Memory and Learning',
+    //   content: 'Spaced repetition is a learning technique that involves reviewing information at increasing intervals. This approach leverages the psychological spacing effect, which demonstrates that information is more effectively stored in long-term memory when it\'s studied multiple times over spaced intervals.\n\nThe forgetting curve, first described by Hermann Ebbinghaus, shows how information is lost over time when there is no attempt to retain it. The curve is steep, with significant information loss occurring within the first few days after learning.\n\nMemory consolidation occurs during sleep, making adequate rest essential for effective learning. During deep sleep, the brain processes and strengthens neural connections formed during waking hours.\n\nFlashcards are particularly effective for learning because they utilize active recall, which strengthens memory pathways more effectively than passive review methods like rereading.',
+    //   createdAt: new Date().toISOString(),
+    //   category: 'Science'
+    // },
+    // {
+    //   id: '4',
+    //   title: 'Advanced AI Concepts in Education',
+    //   content: 'Adaptive learning systems use AI to customize educational content based on individual student needs. These systems analyze performance data and learning patterns to deliver personalized learning experiences that address specific strengths and weaknesses.\n\nNatural Language Processing (NLP) enables educational platforms to understand and respond to student questions, provide feedback on written assignments, and generate summaries of complex texts.\n\nKnowledge graphs can represent relationships between concepts, helping students understand how ideas connect across different subjects and domains.\n\nPredictive analytics can identify students at risk of falling behind, allowing for early intervention and support.\n\nAI-powered assessment tools can evaluate not just factual knowledge but also higher-order thinking skills like critical analysis, problem-solving, and creativity.',
+    //   createdAt: new Date().toISOString(),
+    //   category: 'Technology'
+    // }
+
+
+
+
+  //   id: string;
+  // title: string;
+  // content: string;
+  // createdAt: string;
+  // category: string;
   ]);
   
+  useEffect(() => {
+    // localStorage.setItem('uid', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ5MTA5NTA1LCJpYXQiOjE3NDM5MjU1MDUsImp0aSI6IjRhMThhYzQ2NmI0NzQzY2M5N2I2MTg4NzQxMmRjMWU3IiwidXNlcl9pZCI6MiwiZW1haWwiOiJhYmNAZ21haWwuY29tIiwidXNlcm5hbWUiOiJhYmMifQ.Vfvzm2BZ__9gCO28psne0x2OMsl6a6s8TcxiBUGpols'); // Set a unique ID for the user
+    const fetchnotes = async () =>{
+      const uid = localStorage.getItem('uid');
+      if (!uid) return;
+      const response = await fetch('http://localhost:8000/api/notes/',{
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${uid}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch notes.",
+          variant: "destructive",
+        });
+        return;
+      }
+      const data = await response.json();
+      console.log(data)
+      const formattedNotes = data.map(note=>({
+        id: note.id,
+        title: note.title,
+        content: note.description,
+        createdAt: note.updated_at,
+        category: note.category
+      }))
+      setNotes(formattedNotes);
+    };
+    fetchnotes();
+  }, [toast]);
+
   const categories = Array.from(new Set(notes.map(note => note.category)));
   
   const filteredNotes = notes.filter(note => {
@@ -60,19 +104,47 @@ const Notes = () => {
     return matchesSearch && matchesCategory;
   });
   
-  const handleCreateNote = (title: string, content: string, attachedFiles: File[]) => {
+  const handleCreateNote = async (title: string, content: string, attachedFiles: File[]) => {
     // In a real app, we'd also handle file uploads to a storage service
     const category = categorizeText(content);
     
-    const createdNote: Note = {
-      id: Date.now().toString(),
-      title: title,
-      content: content,
-      createdAt: new Date().toISOString(),
-      category
-    };
+    const lastId = notes.length > 0 ? parseInt(notes[-1]?.id) : 0;
+    const newId = lastId + 1;
+
     
-    setNotes(prev => [createdNote, ...prev]);
+      const uid = localStorage.getItem('uid');
+      if (!uid) return;
+      const response = await fetch('http://localhost:8000/api/notes/',{
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${uid}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title,
+          description: content,
+          category,
+          attachedFiles
+        })
+      });
+      if (!response.ok) {
+        toast({
+          title: "Error",
+          description: "Failed to create note.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+    // const createdNote: Note = {
+    //   id: newId.toString(),
+    //   title: title,
+    //   content: content,
+    //   createdAt: new Date().toISOString(),
+    //   category
+    // };
+    
+    // setNotes(prev => [createdNote, ...prev]);
     setIsCreatingNote(false);
     
     toast({

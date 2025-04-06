@@ -1,14 +1,53 @@
 import React from 'react';
 import { Layout } from '@/components/Layout';
-import { NoteCard, Note } from '@/components/NoteCard';
+import { NoteCard, Note, DashBoard } from '@/components/NoteCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, FolderKanban, Tag, Clock, BookText, ArrowUpToLine } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [dashboardData, setDashboardData] = React.useState<DashBoard>();
   
+  useEffect(() => {
+    const token = localStorage.getItem('uid');
+    const getDashboardData = async () => {
+      const response = await fetch("http://localhost:8000/api/dashboard/", {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+  
+        const formattedData: DashBoard = {
+          note_count: data.note_count,
+          category_count: data.category_count,
+          recent_notes: data.recent_notes.map(note => ({
+            id: String(note.id), // Convert id to string as per NoteData interface
+            user: String(note.user), // Convert user to string as per NoteData interface
+            title: note.title,
+            content: note.description, // Map 'description' to 'content'
+            isFile: note.is_file,     // Map 'is_file' to 'isFile'
+            fileUrl: note.file_url,   // Map 'file_url' to 'fileUrl'
+            createdAt: note.created_at, // Map 'created_at' to 'createdAt'
+            updatedAt: note.updated_at, // Map 'updated_at' to 'updatedAt'
+            category: note.category,
+          })),
+        };
+        setDashboardData(formattedData);
+      } else {
+        console.error("Failed to fetch dashboard data");
+      }
+    };
+    getDashboardData();
+  }, []);
+
   // Mock data
   const recentNotes: Note[] = [
     {
@@ -54,24 +93,32 @@ const Dashboard = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {stats.map((stat, i) => {
-            const Icon = stat.icon;
-            return (
-              <div 
-                key={stat.label} 
+        <div  
                 className="glass-card p-4 rounded-lg flex items-center gap-4 animate-scale-in"
-                style={{ animationDelay: `${i * 0.1}s` }}
+                style={{ animationDelay: `${1 * 0.1}s` }}
               >
                 <div className="p-3 rounded-full bg-primary/10">
-                  <Icon size={20} className="text-primary" />
+                  <FileText size={20} className="text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-semibold">{stat.value}</h3>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <h3 className="text-2xl font-semibold">{dashboardData?.note_count}</h3>
+                  <p className="text-sm text-muted-foreground">Total Notes</p>
                 </div>
               </div>
-            );
-          })}
+
+		<div  
+                className="glass-card p-4 rounded-lg flex items-center gap-4 animate-scale-in"
+                style={{ animationDelay: `${2 * 0.1}s` }}
+              >
+                <div className="p-3 rounded-full bg-primary/10">
+                  <Tag size={20} className="text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-semibold">{dashboardData?.category_count}</h3>
+                  <p className="text-sm text-muted-foreground">Category</p>
+                </div>
+              </div>
+
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
@@ -84,7 +131,7 @@ const Dashboard = () => {
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {recentNotes.map((note) => (
+              {dashboardData?.recent_notes.map((note) => (
                 <NoteCard 
                   key={note.id} 
                   note={note}

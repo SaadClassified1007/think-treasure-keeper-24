@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Brain, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { get } from 'http';
+import { h } from 'node_modules/framer-motion/dist/types.d-B50aGbjN';
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -16,6 +18,34 @@ const SignIn = () => {
     email: '',
     password: ''
   });
+  
+  const handleSignin = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/token/", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // ✅ Correct header
+        },
+        body: JSON.stringify({
+          "email": formData.email,
+          "password": formData.password
+        })
+      });
+  
+      if (response.ok) {
+        const data = await response.json(); // ✅ Await this
+        localStorage.setItem("data", JSON.stringify(data));
+        localStorage.setItem("uid", data.access);
+        console.log("Login successful!");
+      } else {
+        const error = await response.json();
+        console.error("Login failed:", error);
+      }
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  };
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -127,7 +157,7 @@ const SignIn = () => {
           </CardContent>
           
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading} onClick={()=>handleSignin()}>
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
             
